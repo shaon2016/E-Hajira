@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Stu</string>
+    <string name="id">ID</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="institute_settings">Institute Settings</string>
+    <string name="user_management">User Management</string>
+    <string name="about">About</string>
+    <string name="server_settings">Server Settings</string>
+    <string name="server_settings">Server Settings</string>
+    <string name="notice_management">Notice Management</string>
+    <string name="list_of_user">List Of User</string>
+</resources>
