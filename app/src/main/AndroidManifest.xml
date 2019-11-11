@@ -10,10 +10,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activities.SettingActivity"></activity>
+        <activity android:name=".activities.InstituteSettingActivity"></activity>
+        <activity android:name=".activities.SettingActivity" />
         <activity android:name=".activities.LoginActivity" />
         <activity android:name=".activities.StudentDetailsActivity" />
-        <activity android:name=".MainActivity" />
+        <activity android:name=".activities.MainActivity" />
         <activity
             android:name=".activities.SplashActivity"
             android:screenOrientation="portrait">

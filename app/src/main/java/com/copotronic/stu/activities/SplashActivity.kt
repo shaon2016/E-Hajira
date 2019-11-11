@@ -4,7 +4,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import com.copotronic.stu.MainActivity
 import com.copotronic.stu.R
 import com.copotronic.stu.helper.U
 import kotlinx.android.synthetic.main.activity_splash.*

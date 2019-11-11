@@ -7,7 +7,13 @@
     <string name="user_management">User Management</string>
     <string name="about">About</string>
     <string name="server_settings">Server Settings</string>
-    <string name="server_settings">Server Settings</string>
     <string name="notice_management">Notice Management</string>
     <string name="list_of_user">List Of User</string>
+    <string name="institute_id">Institute ID</string>
+    <string name="name">Name</string>
+    <string name="address">Address</string>
+    <string name="mobile_no">Mobile No</string>
+    <string name="device_id">Device ID</string>
+    <string name="add_user_type">Add User Type</string>
+    <string name="change_password">Change Password</string>
 </resources>
