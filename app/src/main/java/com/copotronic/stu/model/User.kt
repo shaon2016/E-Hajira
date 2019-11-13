@@ -1,3 +1,14 @@
 package com.copotronic.stu.model
 
-data class User(val id : Int)
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
+data class User(
+    @PrimaryKey(autoGenerate = true)
+    val id : Int,
+    @ColumnInfo(name = "user_id")
+    var userId : String,
+    var name : String
+    )

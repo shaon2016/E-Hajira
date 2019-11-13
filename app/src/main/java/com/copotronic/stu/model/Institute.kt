@@ -9,7 +9,7 @@ data class Institute(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     @ColumnInfo(name = "institute_id")
-    var instituteId: Int,
+    var instituteId: String,
     var name: String,
     var address: String,
     @ColumnInfo(name = "loc_lat")
@@ -19,5 +19,5 @@ data class Institute(
     @ColumnInfo(name = "created_at")
     var created_at: String,
     @ColumnInfo(name = "updated_at")
-    var updated_at: String
+    var updated_at: String = ""
 )

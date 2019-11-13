@@ -76,7 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:flexWrap="wrap">
+                app:flexDirection="column">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -87,7 +87,6 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:text="Teacher"
                     android:textSize="24sp" />
 
@@ -107,7 +106,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:flexWrap="wrap">
+                app:flexDirection="column">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -137,7 +136,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:flexWrap="wrap">
+                app:flexDirection="column">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -167,7 +166,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:flexWrap="wrap">
+                app:flexDirection="column">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -195,10 +194,9 @@
             <com.google.android.flexbox.FlexboxLayout
                 android:id="@+id/fblShift"
                 android:layout_width="match_parent"
-                android:layout_marginBottom="32dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:flexWrap="wrap">
+                app:flexDirection="column">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -215,6 +213,15 @@
 
             </com.google.android.flexbox.FlexboxLayout>
 
+            <Button
+                android:id="@+id/btnDone"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="32dp"
+                android:text="@string/done" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

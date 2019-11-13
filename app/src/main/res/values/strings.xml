@@ -16,4 +16,9 @@
     <string name="device_id">Device ID</string>
     <string name="add_user_type">Add User Type</string>
     <string name="change_password">Change Password</string>
+    <string name="submit">Submit</string>
+    <string name="done">Done</string>
+    <string name="user_id">User Id</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
 </resources>
