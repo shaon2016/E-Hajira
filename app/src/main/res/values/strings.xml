@@ -21,4 +21,10 @@
     <string name="user_id">User Id</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <string name="add_fingerprints">Add Fingerprints</string>
+    <string name="select_designation">Select Designation</string>
+    <string name="select_sction">Select section</string>
+    <string name="select_department">Select department</string>
+    <string name="select_shift">Select shift</string>
+    <string name="select_type">Select user type</string>
 </resources>

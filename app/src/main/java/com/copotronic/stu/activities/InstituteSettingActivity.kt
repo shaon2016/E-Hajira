@@ -217,7 +217,7 @@ class InstituteSettingActivity : AppCompatActivity() {
                 val deptStr = charSequence.toString()
                 if (deptStr.isNotEmpty()) {
                     Thread {
-                        val dept = Department(deptStr)
+                        val dept = Department(0, deptStr)
                         db.deptDao().insert(dept)
                     }.start()
                 }

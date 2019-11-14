@@ -5,8 +5,11 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Department(
-    var name: String,
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0
+    val id: Int = 0,
+    var name: String
 
-)
+){
+
+    override fun toString() = name
+}

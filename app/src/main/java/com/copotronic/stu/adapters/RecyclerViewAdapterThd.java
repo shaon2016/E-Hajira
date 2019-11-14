@@ -19,7 +19,6 @@ public abstract class RecyclerViewAdapterThd<MODEL>
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
 
 
-
     @Override
     public Filter getFilter() {
         return new Filter() {

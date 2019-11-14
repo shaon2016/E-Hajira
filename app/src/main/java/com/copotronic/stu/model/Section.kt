@@ -6,4 +6,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class Section( @PrimaryKey(autoGenerate = true)
                     val id: Int,
-                    var name: String)
+                    var name: String) {
+
+    override fun toString() = name
+}
