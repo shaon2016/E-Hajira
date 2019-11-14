@@ -3,12 +3,30 @@ package com.copotronic.stu.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 @Entity
 data class User(
     @PrimaryKey(autoGenerate = true)
-    val id : Int = 0,
+    val id: Int = 0,
     @ColumnInfo(name = "user_id")
-    var userId : String = "",
-    var name : String
-    )
+    var userId: String = "",
+    var name: String,
+    @ColumnInfo(name = "user_type_id")
+    var userTypeId: Int = 0,
+    @ColumnInfo(name = "user_designation_id")
+    var designationId: Int = 0,
+    @ColumnInfo(name = "user_department_id")
+    var departmentId: Int = 0,
+    @ColumnInfo(name = "user_section_id")
+    var sectionId: Int = 0,
+    @ColumnInfo(name = "user_shift_id")
+    var shiftId: Int = 0,
+    @ColumnInfo(name = "user_pin")
+    var pinNo : String = "",
+    @ColumnInfo(name = "image_path")
+    var imagePath : String = "",
+    @ColumnInfo(name = "line_description")
+    var lineDescription : String = ""
+) : Serializable

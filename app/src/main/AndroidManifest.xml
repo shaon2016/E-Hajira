@@ -19,7 +19,9 @@
         <activity
             android:name=".activities.InstituteSettingActivity"
             android:exported="true" />
-        <activity android:name=".activities.SettingActivity" />
+        <activity
+            android:exported="true"
+            android:name=".activities.SettingActivity" />
         <activity android:name=".activities.LoginActivity" />
         <activity android:name=".activities.StudentDetailsActivity" />
         <activity android:name=".activities.MainActivity" />

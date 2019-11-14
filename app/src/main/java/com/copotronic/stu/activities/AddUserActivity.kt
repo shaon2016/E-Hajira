@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter
 import androidx.lifecycle.Observer
 import com.copotronic.stu.R
 import com.copotronic.stu.data.AppDb
+import com.copotronic.stu.helper.D
 import com.copotronic.stu.model.*
 import kotlinx.android.synthetic.main.activity_add_user.*
 
@@ -20,6 +21,7 @@ class AddUserActivity : AppCompatActivity() {
     private var typeId = 0
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_user)
@@ -30,6 +32,8 @@ class AddUserActivity : AppCompatActivity() {
 
     private fun initVar() {
         db = AppDb.getInstance(this)!!
+
+
     }
 
     private fun initView() {
@@ -38,6 +42,49 @@ class AddUserActivity : AppCompatActivity() {
         setSection()
         setShifts()
         setUserTypes()
+
+        btnSubmit.setOnClickListener {
+            save()
+        }
+    }
+
+    private fun save() {
+        val name = evName.text.toString()
+        val userId = evUserId.text.toString()
+        val mobileNo = evMobile.text.toString()
+        val pin = evPin.text.toString()
+        val desc = evLineDescription.text.toString()
+
+
+        if (pin.isNullOrEmpty()) {
+            D.showToastShort(this, "Insert user pin")
+            return
+        }
+        if (userId.isNullOrEmpty()) {
+            D.showToastShort(this, "Insert user id")
+            return
+        }
+        if (desc.isNullOrEmpty()) {
+            D.showToastShort(this, "Insert user line description")
+            return
+        }
+        if (name.isNullOrEmpty()) {
+            D.showToastShort(this, "Insert name")
+            return
+        }
+
+        if (mobileNo.isNullOrEmpty()) {
+            D.showToastShort(this, "Insert mobile no")
+            return
+        }
+
+        Thread {
+            val user = User(0, userId, name, typeId, desgId, deptId, secId, shiftId, pin, "", desc)
+            db.userDao().insert(user)
+        }.start()
+
+        D.showToastShort(this,"User saved successfully")
+        finish()
     }
 
     private fun setDesignation() {

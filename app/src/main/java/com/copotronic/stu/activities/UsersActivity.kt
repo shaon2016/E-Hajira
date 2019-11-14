@@ -28,13 +28,13 @@ class UsersActivity : AppCompatActivity() {
 
         setUsers()
 
+
     }
 
     private fun setUsers() {
-        val user = User(0, "1231", "Shaon")
-        db.userDao().insert(user)
+
         db.userDao().all().observe(this, Observer { users ->
-            adapter = UserRvAdapter(this, users as ArrayList<User>)
+            adapter = UserRvAdapter(this, users as ArrayList<User>, db)
             rvUsers.adapter = adapter
         })
     }

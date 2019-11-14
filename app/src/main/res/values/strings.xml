@@ -27,4 +27,6 @@
     <string name="select_department">Select department</string>
     <string name="select_shift">Select shift</string>
     <string name="select_type">Select user type</string>
+    <string name="pin_no">Pin No</string>
+    <string name="line_description">Line Description</string>
 </resources>

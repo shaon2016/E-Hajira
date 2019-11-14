@@ -18,7 +18,7 @@ import com.copotronic.stu.model.*
         Shift::class,
         UserType::class
 
-    ], version = 1, exportSchema = false
+    ], version = 2, exportSchema = false
 )
 abstract class AppDb : RoomDatabase() {
 

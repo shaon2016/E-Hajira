@@ -34,6 +34,7 @@
                     android:src="@drawable/beats" />
 
                 <Button
+                    style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -60,10 +61,27 @@
 
             <EditText
                 android:id="@+id/evMobile"
+                android:digits="0123456789"
+                android:inputType="number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:hint="@string/mobile_no"
+                android:padding="16dp" />
+
+            <EditText
+                android:id="@+id/evPin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/pin_no"
+                android:padding="16dp" />
+            <EditText
+                android:id="@+id/evLineDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:hint="@string/line_description"
                 android:padding="16dp" />
 
             <Spinner
@@ -89,6 +107,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp" />
+
             <Spinner
                 android:id="@+id/spinSection"
                 android:layout_width="match_parent"
@@ -96,24 +115,27 @@
                 android:layout_marginTop="16dp" />
 
             <TextView
-
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text="@string/add_fingerprints"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textSize="24sp" />
 
             <LinearLayout
-                android:layout_marginTop="8dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp">
 
                 <Button
+                    style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Left Finger" />
 
                 <Button
+                    style="@style/Widget.AppCompat.Button.Colored"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
