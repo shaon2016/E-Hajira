@@ -29,4 +29,5 @@
     <string name="select_type">Select user type</string>
     <string name="pin_no">Pin No</string>
     <string name="line_description">Line Description</string>
+    <string name="notice">Notice</string>
 </resources>
