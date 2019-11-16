@@ -75,7 +75,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:padding="16dp"
-                android:text="@string/server_settings"
+                android:text="@string/change_password"
                 android:textSize="32sp" />
 
             <Button

@@ -14,7 +14,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import com.copotronic.stu.R
 import com.copotronic.stu.data.AppDb
+import com.copotronic.stu.helper.D
 import com.copotronic.stu.helper.U
+import com.copotronic.stu.model.Notice
 import com.copotronic.stu.model.UserType
 import com.esafirm.imagepicker.features.ImagePicker
 import com.esafirm.imagepicker.model.Image
@@ -33,6 +35,8 @@ class AddNoticeActivity : AppCompatActivity() {
     private var typeId = 0
     /** Request code for gallery image selection for ad post*/
     private val REQUEST_GALLERY_IMAGE = 231
+    private var image : Image? = null
+    private var noticeText = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +63,26 @@ class AddNoticeActivity : AppCompatActivity() {
                 .toolbarArrowColor(ContextCompat.getColor(this, R.color.white))
                 .start(REQUEST_GALLERY_IMAGE)
         }
+
+        btnSubmit.setOnClickListener {
+            save()
+        }
+    }
+
+    private fun save() {
+        noticeText = evNotice.text.toString()
+        val notice = Notice(0, image?.path ?: "", typeId, noticeText)
+
+        image?.let {
+            copyFileToDestination()
+        }
+
+        Thread {
+            db.noticeDao().insert(notice)
+        }.start()
+
+        D.showToastShort(this, "Notice saved")
+        finish()
     }
 
     private fun setUserTypes() {
@@ -95,20 +119,21 @@ class AddNoticeActivity : AppCompatActivity() {
         if (requestCode == REQUEST_GALLERY_IMAGE && resultCode == Activity.RESULT_OK) {
             val image = ImagePicker.getFirstImageOrNull(data)
 
-            copyFileToDestination(image)
-
-        }
+            this.image = image
+            tvImageNoticeName.text = image?.name  }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun copyFileToDestination(image: Image) {
+    private fun copyFileToDestination() {
+
+
         val calender = Calendar.getInstance()
 
-        val src = File(image.path)
+        val src = File(image!!.path)
         val destination = File(
             getExternalFilesDir(
                 Environment.DIRECTORY_PICTURES
-            ), "${calender.timeInMillis}${image.name}"
+            ), "${calender.timeInMillis}${image?.name}"
         )
 
         Thread {

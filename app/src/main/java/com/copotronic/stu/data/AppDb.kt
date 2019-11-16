@@ -16,12 +16,14 @@ import com.copotronic.stu.model.*
         Designation::class,
         Section::class,
         Shift::class,
-        UserType::class
+        UserType::class,
+    Notice::class
 
-    ], version = 2, exportSchema = false
+    ], version = 3, exportSchema = false
 )
 abstract class AppDb : RoomDatabase() {
 
+    abstract fun noticeDao(): NoticeDao
     abstract fun userDao(): UserDao
     abstract fun instituteDao(): InstituteDao
     abstract fun aboutDao(): AboutDao

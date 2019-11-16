@@ -32,4 +32,8 @@
     <string name="notice">Notice</string>
     <string name="folder">Folder</string>
     <string name="tap_to_select">Tap to select</string>
+    <string name="old_password">Old Password</string>
+    <string name="new_password">New Password</string>
+    <string name="change">Change</string>
+    <string name="cancel">Cancel</string>
 </resources>
