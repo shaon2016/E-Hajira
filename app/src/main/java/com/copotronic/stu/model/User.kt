@@ -28,5 +28,10 @@ data class User(
     @ColumnInfo(name = "image_path")
     var imagePath : String = "",
     @ColumnInfo(name = "line_description")
-    var lineDescription : String = ""
-) : Serializable
+    var lineDescription : String = "",
+    @ColumnInfo(name = "left_finger_base64")
+    var leftFingerDataBase64 : String = "",
+    @ColumnInfo(name = "right_finger_base64")
+    var rightFingerDataBase64 : String = ""
+
+    ) : Serializable

@@ -1,18 +1,29 @@
 package com.copotronic.stu.activities
 
+import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.SystemClock
+import android.util.Base64
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.copotronic.stu.R
+import com.copotronic.stu.ScannerAction
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.helper.D
 import com.copotronic.stu.model.*
+import com.mantra.mfs100.FingerData
+import com.mantra.mfs100.MFS100
+import com.mantra.mfs100.MFS100Event
 import kotlinx.android.synthetic.main.activity_add_user.*
 
-class AddUserActivity : AppCompatActivity() {
+class AddUserActivity : AppCompatActivity(), MFS100Event {
+
+
     private lateinit var db: AppDb
     private var desgId = 0
     private var secId = 0
@@ -20,7 +31,20 @@ class AddUserActivity : AppCompatActivity() {
     private var deptId = 0
     private var typeId = 0
 
+    // Finger print related variable instances
+    private lateinit var mfs100: MFS100
+    private var mLastClkTime: Long = 0
+    private val Threshold: Long = 1500
+    private var mLastAttTime = 0L
+    private var timeout = 10000
+    private var leftCapFingerData: FingerData? = null
+    private var rightCapFingerData: FingerData? = null
+    private var scannerAction = ScannerAction.Capture
+    private var enrollTemplate: ByteArray? = null
+    private var verifyTemplate: ByteArray? = null
 
+    private var leftFingerRawDataInStr: String? = null
+    private var rightFingerRawDataInStr: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +57,16 @@ class AddUserActivity : AppCompatActivity() {
     private fun initVar() {
         db = AppDb.getInstance(this)!!
 
+        initMFS100()
+    }
+
+    private fun initMFS100() {
+        try {
+            mfs100 = MFS100(this)
+            mfs100.SetApplicationContext(this)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
     }
 
@@ -46,6 +80,16 @@ class AddUserActivity : AppCompatActivity() {
         btnSubmit.setOnClickListener {
             save()
         }
+
+        btnStartCaptureLeftFinger.setOnClickListener {
+            scannerAction = ScannerAction.Capture
+            startSyncLeftFingerCapture()
+        }
+        btnStartCaptureRightFinger.setOnClickListener {
+            scannerAction = ScannerAction.Capture
+            startSyncRightFingerCapture()
+        }
+
     }
 
     private fun save() {
@@ -72,18 +116,27 @@ class AddUserActivity : AppCompatActivity() {
             D.showToastShort(this, "Insert name")
             return
         }
-
         if (mobileNo.isNullOrEmpty()) {
             D.showToastShort(this, "Insert mobile no")
             return
         }
 
+        if (leftFingerRawDataInStr.isNullOrEmpty()) {
+            D.showToastShort(this, "Left finger data is missing")
+            return
+        }
+        if (rightFingerRawDataInStr.isNullOrEmpty()) {
+            D.showToastShort(this, "Right finger data is missing")
+            return
+        }
+
         Thread {
-            val user = User(0, userId, name, typeId, desgId, deptId, secId, shiftId, pin, "", desc)
+            val user = User(0, userId, name, typeId, desgId, deptId, secId, shiftId, pin, "",
+                desc, leftFingerRawDataInStr!!, rightFingerRawDataInStr!!)
             db.userDao().insert(user)
         }.start()
 
-        D.showToastShort(this,"User saved successfully")
+        D.showToastShort(this, "User saved successfully")
         finish()
     }
 
@@ -240,4 +293,310 @@ class AddUserActivity : AppCompatActivity() {
     }
 
 
+    private fun showSuccessLog(key: String) {
+        try {
+            setFingerPrintDeviceTextOnUIThread("Device is ready")
+            val info = ("\nKey: " + key + "\nSerial: "
+                    + mfs100.GetDeviceInfo().SerialNo() + " Make: "
+                    + mfs100.GetDeviceInfo().Make() + " Model: "
+                    + mfs100.GetDeviceInfo().Model()
+                    + "\nCertificate: " + mfs100.GetCertification())
+            showLonOnLogcat(info)
+        } catch (e: Exception) {
+        }
+
+    }
+
+    private fun showLonOnLogcat(str: String) {
+
+        Log.d("DATATAG", str)
+    }
+
+    override fun OnDeviceAttached(vid: Int, pid: Int, hasPermission: Boolean) {
+        if (SystemClock.elapsedRealtime() - mLastAttTime < Threshold) {
+            return
+        }
+        mLastAttTime = SystemClock.elapsedRealtime()
+        val ret: Int
+        if (!hasPermission) {
+            setFingerPrintDeviceTextOnUIThread("Permission denied")
+            return
+        }
+        try {
+            if (vid == 1204 || vid == 11279) {
+                if (pid == 34323) {
+                    ret = mfs100.LoadFirmware()
+                    if (ret != 0) {
+                        setFingerPrintDeviceTextOnUIThread(mfs100.GetErrorMsg(ret))
+                    } else {
+                        setFingerPrintDeviceTextOnUIThread("Load firmware success")
+                    }
+                } else if (pid == 4101) {
+                    val key = "Without Key"
+                    ret = mfs100.Init()
+                    if (ret == 0) {
+                        showSuccessLog(key)
+                    } else {
+                        setFingerPrintDeviceTextOnUIThread(mfs100.GetErrorMsg(ret))
+                    }
+
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+    }
+
+    private var mLastDttTime = 0L
+    override fun OnDeviceDetached() {
+        try {
+
+            if (SystemClock.elapsedRealtime() - mLastDttTime < Threshold) {
+                return
+            }
+            mLastDttTime = SystemClock.elapsedRealtime()
+            unInitScanner()
+
+            setFingerPrintDeviceTextOnUIThread("Device removed")
+        } catch (e: Exception) {
+        }
+
+    }
+
+    override fun OnHostCheckFailed(err: String) {
+        try {
+            Toast.makeText(applicationContext, err, Toast.LENGTH_LONG).show()
+        } catch (ignored: Exception) {
+        }
+
+    }
+
+    private fun setFingerPrintDeviceTextOnUIThread(str: String) {
+
+        tvDeviceMsg.post {
+            try {
+                tvDeviceMsg.text = str
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun unInitScanner() {
+        try {
+            val ret = mfs100.UnInit()
+            if (ret != 0) {
+                setFingerPrintDeviceTextOnUIThread(mfs100.GetErrorMsg(ret))
+            } else {
+                showLonOnLogcat("Device is not ready")
+                setFingerPrintDeviceTextOnUIThread("Device is not ready")
+                leftCapFingerData = null
+                rightCapFingerData = null
+            }
+        } catch (e: Exception) {
+            Log.e("unInitScanner.EX", e.toString())
+        }
+    }
+
+    override fun onStart() {
+        try {
+            if (mfs100 == null) {
+                mfs100 = MFS100(this)
+                mfs100.SetApplicationContext(this)
+            } else {
+                initScanner()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        super.onStart()
+    }
+
+    override fun onStop() {
+        try {
+            if (isCaptureRunning) {
+                val ret = mfs100.StopAutoCapture()
+            }
+            Thread.sleep(500)
+            //            unInitScanner();
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        try {
+            if (mfs100 != null) {
+                mfs100.Dispose()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        super.onDestroy()
+    }
+
+    private fun initScanner() {
+        try {
+            val ret = mfs100.Init()
+            if (ret != 0) {
+                setFingerPrintDeviceTextOnUIThread(mfs100.GetErrorMsg(ret))
+            } else {
+                setFingerPrintDeviceTextOnUIThread("Device is ready")
+                /*val info = ("Serial: " + mfs100.GetDeviceInfo().SerialNo()
+                        + " Make: " + mfs100.GetDeviceInfo().Make()
+                        + " Model: " + mfs100.GetDeviceInfo().Model()
+                        + "\nCertificate: " + mfs100.GetCertification())
+                showLonOnLogcat(info)*/
+            }
+        } catch (ex: Exception) {
+            Toast.makeText(
+                applicationContext, "Init failed, unhandled exception",
+                Toast.LENGTH_LONG
+            ).show()
+            setFingerPrintDeviceTextOnUIThread("Init failed, unhandled exception")
+        }
+
+    }
+
+    private var isCaptureRunning = false
+
+    private fun startSyncLeftFingerCapture() {
+        Thread(Runnable {
+            setFingerPrintDeviceTextOnUIThread("")
+            isCaptureRunning = true
+            try {
+                val fingerData = FingerData()
+                val ret = mfs100.AutoCapture(fingerData, timeout, true)
+                Log.e("StartSyncCapture.RET", "" + ret)
+                if (ret != 0) {
+                    setFingerPrintDeviceTextOnUIThread(mfs100.GetErrorMsg(ret))
+                } else {
+                    leftCapFingerData = fingerData
+
+                    val bitmap = BitmapFactory.decodeByteArray(
+                        fingerData.FingerImage(), 0,
+                        fingerData.FingerImage().size
+                    )
+                    this@AddUserActivity.runOnUiThread { ivLeftFinger.setImageBitmap(bitmap) }
+
+                    Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
+                    //                        Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
+
+                    leftFingerRawDataInStr = Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT)
+                    setFingerPrintDeviceTextOnUIThread("Capture Success")
+                    tvLeftFingerCaptureMsg.text = "Captured"
+                    fingerLog(fingerData)
+                    //setLeftFingerData(fingerData)
+                }
+            } catch (ex: Exception) {
+                setFingerPrintDeviceTextOnUIThread("Error")
+            } finally {
+                isCaptureRunning = false
+            }
+        }).start()
+    }
+
+    private fun startSyncRightFingerCapture() {
+        Thread(Runnable {
+            setFingerPrintDeviceTextOnUIThread("")
+            isCaptureRunning = true
+            try {
+                val fingerData = FingerData()
+                val ret = mfs100.AutoCapture(fingerData, timeout, true)
+                Log.e("StartSyncCapture.RET", "" + ret)
+                if (ret != 0) {
+                    setFingerPrintDeviceTextOnUIThread(mfs100.GetErrorMsg(ret))
+                } else {
+                    rightCapFingerData = fingerData
+
+                    val bitmap = BitmapFactory.decodeByteArray(
+                        fingerData.FingerImage(), 0,
+                        fingerData.FingerImage().size
+                    )
+                    this@AddUserActivity.runOnUiThread { ivRightFinger.setImageBitmap(bitmap) }
+
+                    Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
+                    //                        Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
+
+                    rightFingerRawDataInStr = Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT)
+                    setFingerPrintDeviceTextOnUIThread("Capture Success")
+                    tvRightFingerCaptureMsg.text = "Captured"
+                    fingerLog(fingerData)
+                    //setLeftFingerData(fingerData)
+                }
+            } catch (ex: Exception) {
+                setFingerPrintDeviceTextOnUIThread("Error")
+            } finally {
+                isCaptureRunning = false
+            }
+        }).start()
+    }
+
+    private fun fingerLog(fingerData: FingerData) {
+        val log = ("\nQuality: " + fingerData.Quality()
+                + "\nNFIQ: " + fingerData.Nfiq()
+                + "\nWSQ Compress Ratio: "
+                + fingerData.WSQCompressRatio()
+                + "\nImage Dimensions (inch): "
+                + fingerData.InWidth() + "\" X "
+                + fingerData.InHeight() + "\""
+                + "\nImage Area (inch): " + fingerData.InArea()
+                + "\"" + "\nResolution (dpi/ppi): "
+                + fingerData.Resolution() + "\nGray Scale: "
+                + fingerData.GrayScale() + "\nBits Per Pixal: "
+                + fingerData.Bpp() + "\nWSQ Info: "
+                + fingerData.WSQInfo())
+        showLonOnLogcat(log)
+    }
+
+    private fun setLeftFingerData(fingerData: FingerData) {
+        try {
+            if (scannerAction == ScannerAction.Capture) {
+                enrollTemplate = ByteArray(fingerData.ISOTemplate().size)
+                System.arraycopy(
+                    fingerData.ISOTemplate(), 0, enrollTemplate, 0,
+                    fingerData.ISOTemplate().size
+                )
+            } else if (scannerAction == ScannerAction.Verify) {
+                if (enrollTemplate == null) {
+                    return
+                }
+                verifyTemplate = ByteArray(fingerData.ISOTemplate().size)
+                System.arraycopy(
+                    fingerData.ISOTemplate(), 0, verifyTemplate, 0,
+                    fingerData.ISOTemplate().size
+                )
+                val ret = mfs100.MatchISO(enrollTemplate, verifyTemplate)
+                if (ret < 0) {
+                    setFingerPrintDeviceTextOnUIThread(
+                        "Error: " + ret + "(" + mfs100.GetErrorMsg(
+                            ret
+                        ) + ")"
+                    )
+                } else {
+                    if (ret >= 96) {
+                        setFingerPrintDeviceTextOnUIThread("Finger matched with score: $ret")
+                    } else {
+                        setFingerPrintDeviceTextOnUIThread("Finger not matched, score: $ret")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        /*try {
+            WriteFile("Raw.raw", fingerData.RawData())
+            WriteFile("Bitmap.bmp", fingerData.FingerImage())
+            WriteFile("ISOTemplate.iso", fingerData.ISOTemplate())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }*/
+
+    }
 }
