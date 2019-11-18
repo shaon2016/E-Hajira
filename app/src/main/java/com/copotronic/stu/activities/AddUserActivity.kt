@@ -1,25 +1,37 @@
 package com.copotronic.stu.activities
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Environment
 import android.os.SystemClock
 import android.util.Base64
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import com.copotronic.stu.R
 import com.copotronic.stu.ScannerAction
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.helper.D
+import com.copotronic.stu.helper.U
 import com.copotronic.stu.model.*
+import com.esafirm.imagepicker.features.ImagePicker
+import com.esafirm.imagepicker.model.Image
 import com.mantra.mfs100.FingerData
 import com.mantra.mfs100.MFS100
 import com.mantra.mfs100.MFS100Event
 import kotlinx.android.synthetic.main.activity_add_user.*
+import java.io.File
+import java.util.*
+import kotlin.collections.ArrayList
 
 class AddUserActivity : AppCompatActivity(), MFS100Event {
 
@@ -40,11 +52,18 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
     private var leftCapFingerData: FingerData? = null
     private var rightCapFingerData: FingerData? = null
     private var scannerAction = ScannerAction.Capture
-    private var enrollTemplate: ByteArray? = null
-    private var verifyTemplate: ByteArray? = null
+    private var leftEnrollTemplate: ByteArray? = null
+    private var rightEnrollTemplate: ByteArray? = null
+    private var leftVerifyTemplate: ByteArray? = null
+    private var rightVerifyTemplate: ByteArray? = null
 
     private var leftFingerRawDataInStr: String? = null
     private var rightFingerRawDataInStr: String? = null
+
+    // User image
+    /** Request code for gallery image selection for ad post*/
+    private val REQUEST_GALLERY_IMAGE = 231
+    private var image: Image? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,6 +109,61 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
             startSyncRightFingerCapture()
         }
 
+        btnAddUserImage.setOnClickListener {
+            ImagePicker.create(this)
+                .toolbarFolderTitle(getString(R.string.folder)) // folder selection title
+                .toolbarImageTitle(getString(R.string.tap_to_select)) // image selection title
+                .toolbarArrowColor(Color.BLACK)
+                .limit(1)
+                .showCamera(true)
+                .toolbarArrowColor(ContextCompat.getColor(this, R.color.white))
+                .start(REQUEST_GALLERY_IMAGE)
+        }
+
+        btnVerifyCaptureLeftFinger.setOnClickListener {
+            scannerAction = ScannerAction.Verify
+            if (!isCaptureRunning) {
+                startSyncLeftFingerCapture()
+            }
+        }
+        btnVerifyCaptureRightFinger.setOnClickListener {
+            scannerAction = ScannerAction.Verify
+            if (!isCaptureRunning) {
+                startSyncRightFingerCapture()
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_GALLERY_IMAGE && resultCode == Activity.RESULT_OK) {
+            val image = ImagePicker.getFirstImageOrNull(data)
+
+            this.image = image
+
+            showUserImage()
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun showUserImage() {
+        val myBitmap = BitmapFactory.decodeFile(image?.path)
+        ivUser.setImageBitmap(myBitmap)
+    }
+
+    private fun copyFileToDestination() {
+
+        val calender = Calendar.getInstance()
+
+        val src = File(image!!.path)
+        val destination = File(
+            getExternalFilesDir(
+                Environment.DIRECTORY_PICTURES
+            ), "${calender.timeInMillis}${image?.name}"
+        )
+
+        Thread {
+            U.copyOrMoveFile(src, destination, true)
+        }.start()
     }
 
     private fun save() {
@@ -130,9 +204,15 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
             return
         }
 
+        image?.let {
+            copyFileToDestination()
+        }
+
         Thread {
-            val user = User(0, userId, name, typeId, desgId, deptId, secId, shiftId, pin, "",
-                desc, leftFingerRawDataInStr!!, rightFingerRawDataInStr!!)
+            val user = User(
+                0, userId, name, typeId, desgId, deptId, secId, shiftId, pin,
+                image?.path ?: "", desc, leftFingerRawDataInStr!!, rightFingerRawDataInStr!!
+            )
             db.userDao().insert(user)
         }.start()
 
@@ -487,11 +567,11 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
                     //                        Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
 
-                    leftFingerRawDataInStr = Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT)
+
                     setFingerPrintDeviceTextOnUIThread("Capture Success")
                     tvLeftFingerCaptureMsg.text = "Captured"
                     fingerLog(fingerData)
-                    //setLeftFingerData(fingerData)
+                    setLeftFingerData(fingerData)
                 }
             } catch (ex: Exception) {
                 setFingerPrintDeviceTextOnUIThread("Error")
@@ -523,11 +603,10 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
                     //                        Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
 
-                    rightFingerRawDataInStr = Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT)
                     setFingerPrintDeviceTextOnUIThread("Capture Success")
                     tvRightFingerCaptureMsg.text = "Captured"
                     fingerLog(fingerData)
-                    //setLeftFingerData(fingerData)
+                    setRightFingerData(fingerData)
                 }
             } catch (ex: Exception) {
                 setFingerPrintDeviceTextOnUIThread("Error")
@@ -554,35 +633,37 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
         showLonOnLogcat(log)
     }
 
-    private fun setLeftFingerData(fingerData: FingerData) {
+    private fun setLeftFingerData(
+        fingerData: FingerData) {
         try {
             if (scannerAction == ScannerAction.Capture) {
-                enrollTemplate = ByteArray(fingerData.ISOTemplate().size)
+                leftEnrollTemplate = ByteArray(fingerData.ISOTemplate().size)
                 System.arraycopy(
-                    fingerData.ISOTemplate(), 0, enrollTemplate, 0,
+                    fingerData.ISOTemplate(), 0, leftEnrollTemplate, 0,
                     fingerData.ISOTemplate().size
                 )
             } else if (scannerAction == ScannerAction.Verify) {
-                if (enrollTemplate == null) {
+                if (leftEnrollTemplate == null) {
                     return
                 }
-                verifyTemplate = ByteArray(fingerData.ISOTemplate().size)
+                leftVerifyTemplate = ByteArray(fingerData.ISOTemplate().size)
                 System.arraycopy(
-                    fingerData.ISOTemplate(), 0, verifyTemplate, 0,
+                    fingerData.ISOTemplate(), 0, leftVerifyTemplate, 0,
                     fingerData.ISOTemplate().size
                 )
-                val ret = mfs100.MatchISO(enrollTemplate, verifyTemplate)
+                val ret = mfs100.MatchISO(leftEnrollTemplate, leftVerifyTemplate)
                 if (ret < 0) {
                     setFingerPrintDeviceTextOnUIThread(
-                        "Error: " + ret + "(" + mfs100.GetErrorMsg(
+                        "Error: $ret(" + mfs100.GetErrorMsg(
                             ret
                         ) + ")"
                     )
                 } else {
                     if (ret >= 96) {
-                        setFingerPrintDeviceTextOnUIThread("Finger matched with score: $ret")
+                        leftFingerRawDataInStr = Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT)
+                        tvLeftFingerVerifyMsg.text = "Finger matched"
                     } else {
-                        setFingerPrintDeviceTextOnUIThread("Finger not matched, score: $ret")
+                        tvLeftFingerVerifyMsg.text = "Finger not matched"
                     }
                 }
             }
@@ -599,4 +680,52 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
         }*/
 
     }
+    private fun setRightFingerData(
+        fingerData: FingerData) {
+        try {
+            if (scannerAction == ScannerAction.Capture) {
+                rightEnrollTemplate = ByteArray(fingerData.ISOTemplate().size)
+                System.arraycopy(
+                    fingerData.ISOTemplate(), 0, rightEnrollTemplate, 0,
+                    fingerData.ISOTemplate().size
+                )
+            } else if (scannerAction == ScannerAction.Verify) {
+                if (rightEnrollTemplate == null) {
+                    return
+                }
+                rightVerifyTemplate = ByteArray(fingerData.ISOTemplate().size)
+                System.arraycopy(
+                    fingerData.ISOTemplate(), 0, rightVerifyTemplate, 0,
+                    fingerData.ISOTemplate().size
+                )
+                val ret = mfs100.MatchISO(rightEnrollTemplate, rightVerifyTemplate)
+                if (ret < 0) {
+                    setFingerPrintDeviceTextOnUIThread(
+                        "Error: $ret(" + mfs100.GetErrorMsg(
+                            ret
+                        ) + ")"
+                    )
+                } else {
+                    if (ret >= 96) {
+                        rightFingerRawDataInStr = Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT)
+                        tvRightFingerVerifyMsg.text = "Finger matched"
+                    } else {
+                        tvRightFingerVerifyMsg.text = "Finger not matched"
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        /*try {
+            WriteFile("Raw.raw", fingerData.RawData())
+            WriteFile("Bitmap.bmp", fingerData.FingerImage())
+            WriteFile("ISOTemplate.iso", fingerData.ISOTemplate())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }*/
+
+    }
+
 }
