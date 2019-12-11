@@ -18,6 +18,7 @@ import com.copotronic.stu.helper.D
 import com.copotronic.stu.helper.U
 import com.copotronic.stu.model.Notice
 import com.copotronic.stu.model.UserType
+import com.copotronic.stu.other.Notification
 import com.esafirm.imagepicker.features.ImagePicker
 import com.esafirm.imagepicker.model.Image
 import kotlinx.android.synthetic.main.activity_add_notice.*
@@ -139,6 +140,9 @@ class AddNoticeActivity : AppCompatActivity() {
         Thread {
             U.copyOrMoveFile(src, destination, true)
         }.start()
+
+
+
     }
 
 

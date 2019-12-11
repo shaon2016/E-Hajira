@@ -13,7 +13,6 @@ import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -57,8 +56,10 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
     private var leftVerifyTemplate: ByteArray? = null
     private var rightVerifyTemplate: ByteArray? = null
 
-    private var leftFingerRawDataInStr: String? = null
-    private var rightFingerRawDataInStr: String? = null
+    private var leftFingerFingerImageDataInStr: String? = null
+    private var rightFingerFingerImageDataInStr: String? = null
+    private var leftFingerISOTemplateDataInStr: String? = null
+    private var rightFingerISOTemplateDataInStr: String? = null
 
     // User image
     /** Request code for gallery image selection for ad post*/
@@ -142,6 +143,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
 
             showUserImage()
         }
+
         super.onActivityResult(requestCode, resultCode, data)
     }
 
@@ -156,6 +158,8 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
 
         val src = File(image!!.path)
         val destination = File(
+
+
             getExternalFilesDir(
                 Environment.DIRECTORY_PICTURES
             ), "${calender.timeInMillis}${image?.name}"
@@ -195,11 +199,11 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
             return
         }
 
-        if (leftFingerRawDataInStr.isNullOrEmpty()) {
+        if (leftFingerFingerImageDataInStr.isNullOrEmpty()) {
             D.showToastShort(this, "Left finger data is missing")
             return
         }
-        if (rightFingerRawDataInStr.isNullOrEmpty()) {
+        if (rightFingerFingerImageDataInStr.isNullOrEmpty()) {
             D.showToastShort(this, "Right finger data is missing")
             return
         }
@@ -211,7 +215,8 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
         Thread {
             val user = User(
                 0, userId, name, typeId, desgId, deptId, secId, shiftId, pin,
-                image?.path ?: "", desc, leftFingerRawDataInStr!!, rightFingerRawDataInStr!!
+                image?.path ?: "", desc, leftFingerFingerImageDataInStr!!, rightFingerFingerImageDataInStr!!,
+                leftFingerISOTemplateDataInStr!!, rightFingerISOTemplateDataInStr!!
             )
             db.userDao().insert(user)
         }.start()
@@ -482,8 +487,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
     override fun onStart() {
         try {
             if (mfs100 == null) {
-                mfs100 = MFS100(this)
-                mfs100.SetApplicationContext(this)
+                initMFS100()
             } else {
                 initScanner()
             }
@@ -564,14 +568,24 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     )
                     this@AddUserActivity.runOnUiThread { ivLeftFinger.setImageBitmap(bitmap) }
 
-                    Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
-                    //                        Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
+/*                    Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
+                    Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
 
+                    val a =  Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT)
+                    val b = Base64.decode(a, Base64.DEFAULT)
+
+                    if (fingerData.FingerImage()!=null && fingerData.FingerImage()!!.contentEquals(b)) {
+                        Log.d("DATATAG", "match")
+                    }
+                    val bitmap = BitmapFactory.decodeByteArray(b, 0, b.size)
+                    this@AddUserActivity.runOnUiThread { ivLeftFinger.setImageBitmap(bitmap) }*/
 
                     setFingerPrintDeviceTextOnUIThread("Capture Success")
                     tvLeftFingerCaptureMsg.text = "Captured"
                     fingerLog(fingerData)
                     setLeftFingerData(fingerData)
+
+                    Log.d("DATATAG", Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT))
                 }
             } catch (ex: Exception) {
                 setFingerPrintDeviceTextOnUIThread("Error")
@@ -600,7 +614,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     )
                     this@AddUserActivity.runOnUiThread { ivRightFinger.setImageBitmap(bitmap) }
 
-                    Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
+                    //Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
                     //                        Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
 
                     setFingerPrintDeviceTextOnUIThread("Capture Success")
@@ -660,7 +674,8 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     )
                 } else {
                     if (ret >= 96) {
-                        leftFingerRawDataInStr = Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT)
+                        leftFingerFingerImageDataInStr = Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT)
+                        leftFingerISOTemplateDataInStr = Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT)
                         tvLeftFingerVerifyMsg.text = "Finger matched"
                     } else {
                         tvLeftFingerVerifyMsg.text = "Finger not matched"
@@ -707,7 +722,8 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     )
                 } else {
                     if (ret >= 96) {
-                        rightFingerRawDataInStr = Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT)
+                        rightFingerFingerImageDataInStr = Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT)
+                        rightFingerISOTemplateDataInStr = Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT)
                         tvRightFingerVerifyMsg.text = "Finger matched"
                     } else {
                         tvRightFingerVerifyMsg.text = "Finger not matched"

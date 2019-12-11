@@ -32,6 +32,10 @@ data class User(
     @ColumnInfo(name = "left_finger_base64")
     var leftFingerDataBase64 : String = "",
     @ColumnInfo(name = "right_finger_base64")
-    var rightFingerDataBase64 : String = ""
+    var rightFingerDataBase64 : String = "",
+    @ColumnInfo(name = "left_finger_iso_template_base64")
+    var leftFingerISOTemplateDataBase64 : String = "",
+    @ColumnInfo(name = "right_finger_iso_template_base64")
+    var rightFingerISOTemplateDataBase64 : String = ""
 
     ) : Serializable

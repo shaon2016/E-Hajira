@@ -2,18 +2,21 @@ package com.copotronic.stu.adapters
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.input.input
 import com.copotronic.stu.R
 import com.copotronic.stu.activities.AddUserActivity
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.model.User
+import java.lang.Exception
 
 class UserRvAdapter(
     private val context: Context,
@@ -42,10 +45,25 @@ class UserRvAdapter(
         private val tvName = v.findViewById<TextView>(R.id.tvName)
         private val btnDelete = v.findViewById<Button>(R.id.btnDelete)
         private val btnEdit = v.findViewById<Button>(R.id.btnEdit)
+        private val ivUser = v.findViewById<ImageView>(R.id.ivUser)
 
         fun bind(u: User) {
             tvName.text = u.name
             tvUserId.text = u.userId
+//            val myBitmap = BitmapFactory.decodeFile(u.imagePath)
+//            ivUser.setImageBitmap(myBitmap)
+
+            try {
+                val userLeftFingerByteData = Base64.decode(u.leftFingerDataBase64, Base64.DEFAULT)
+                val leftFingerBitmap = BitmapFactory.decodeByteArray(
+                    userLeftFingerByteData,
+                    0,
+                    userLeftFingerByteData.size
+                )
+                ivUser.setImageBitmap(leftFingerBitmap)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
 
             btnEdit.setOnClickListener {
                 val intent = Intent(context, AddUserActivity::class.java)

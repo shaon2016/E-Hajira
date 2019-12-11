@@ -27,13 +27,15 @@
             android:name=".activities.InstituteSettingActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.SettingActivity"
+            android:name=".activities.SplashActivity"
             android:exported="true" />
         <activity android:name=".activities.LoginActivity" />
         <activity android:name=".activities.StudentDetailsActivity" />
-        <activity android:name=".activities.MainActivity" />
         <activity
-            android:name=".activities.SplashActivity"
+            android:exported="true"
+            android:name=".activities.MainActivity" />
+        <activity
+            android:name=".activities.SettingActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

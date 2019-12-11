@@ -38,6 +38,9 @@ class SettingActivity : AppCompatActivity() {
         tvChangePassword.setOnClickListener {
             changePassword()
         }
+        tvAbout.setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
+        }
     }
 
     private fun changePassword() {

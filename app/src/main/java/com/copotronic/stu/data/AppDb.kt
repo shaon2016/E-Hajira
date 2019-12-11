@@ -19,7 +19,7 @@ import com.copotronic.stu.model.*
         UserType::class,
     Notice::class
 
-    ], version = 3, exportSchema = false
+    ], version = 5, exportSchema = false
 )
 abstract class AppDb : RoomDatabase() {
 

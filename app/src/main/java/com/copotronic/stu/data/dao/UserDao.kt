@@ -22,4 +22,10 @@ interface UserDao {
 
     @Query("select * from user where id = :id")
     fun user(id: Int): User?
+
+    @Query("select * from user where left_finger_base64 = :fingerRawDataInStr or right_finger_base64 = :fingerRawDataInStr")
+    fun findUserByFinger(fingerRawDataInStr: String) : User?
+
+    @Query("select * from user where user_id = :userId")
+    fun findUserByUserId(userId: String) : User?
 }
