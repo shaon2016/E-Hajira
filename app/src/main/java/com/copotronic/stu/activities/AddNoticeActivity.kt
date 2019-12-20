@@ -18,15 +18,10 @@ import com.copotronic.stu.helper.D
 import com.copotronic.stu.helper.U
 import com.copotronic.stu.model.Notice
 import com.copotronic.stu.model.UserType
-import com.copotronic.stu.other.Notification
 import com.esafirm.imagepicker.features.ImagePicker
 import com.esafirm.imagepicker.model.Image
 import kotlinx.android.synthetic.main.activity_add_notice.*
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.nio.channels.FileChannel
 import java.util.*
 import kotlin.collections.ArrayList
 

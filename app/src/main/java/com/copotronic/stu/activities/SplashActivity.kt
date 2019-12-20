@@ -17,6 +17,7 @@ class SplashActivity : AppCompatActivity() {
         Handler().postDelayed({
             setDateTime()
             goToDesiredPage()
+            finish()
         }, 2000)
     }
 

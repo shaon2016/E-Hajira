@@ -21,7 +21,7 @@ interface UserDao {
     fun update(u: User)
 
     @Query("select * from user where id = :id")
-    fun user(id: Int): User?
+    fun user(id: Int): User
 
     @Query("select * from user where left_finger_base64 = :fingerRawDataInStr or right_finger_base64 = :fingerRawDataInStr")
     fun findUserByFinger(fingerRawDataInStr: String) : User?

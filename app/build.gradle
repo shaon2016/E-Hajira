@@ -18,14 +18,12 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
 
-
-
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
-                        "room.schemaLocation":"$projectDir/schemas".toString(),
-                        "room.incremental":"true",
-                        "room.expandProjection":"true"]
+                        "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                        "room.incremental"     : "true",
+                        "room.expandProjection": "true"]
             }
         }
 
@@ -81,6 +79,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0-rc02"
 
     // Coroutine
+    def livedata_version = "2.2.0-rc03"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$livedata_version"
 
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.6.1'
@@ -102,4 +102,7 @@ dependencies {
 
     // Finger print library
     implementation files('libs/mantra.mfs100.jar')
+
+    // Dexter
+    implementation 'com.karumi:dexter:5.0.0'
 }

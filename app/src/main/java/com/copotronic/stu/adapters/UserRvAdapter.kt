@@ -49,18 +49,20 @@ class UserRvAdapter(
 
         fun bind(u: User) {
             tvName.text = u.name
-            tvUserId.text = u.userId
-//            val myBitmap = BitmapFactory.decodeFile(u.imagePath)
-//            ivUser.setImageBitmap(myBitmap)
+            tvUserId.text = u.id.toString()
+
 
             try {
-                val userLeftFingerByteData = Base64.decode(u.leftFingerDataBase64, Base64.DEFAULT)
-                val leftFingerBitmap = BitmapFactory.decodeByteArray(
-                    userLeftFingerByteData,
-                    0,
-                    userLeftFingerByteData.size
-                )
-                ivUser.setImageBitmap(leftFingerBitmap)
+//                val userLeftFingerByteData = Base64.decode(u.leftFingerDataBase64, Base64.DEFAULT)
+//                val leftFingerBitmap = BitmapFactory.decodeByteArray(
+//                    userLeftFingerByteData,
+//                    0,
+//                    userLeftFingerByteData.size
+//                )
+//                ivUser.setImageBitmap(leftFingerBitmap)
+
+                            val myBitmap = BitmapFactory.decodeFile(u.imagePath)
+            ivUser.setImageBitmap(myBitmap)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

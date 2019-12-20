@@ -15,4 +15,7 @@ interface UserTypeDao {
 
     @Query("select * from usertype")
     fun all() : LiveData<List<UserType>>
+
+    @Query("select * from usertype where id = :userTypeId")
+    fun utById(userTypeId: Int) : UserType
 }

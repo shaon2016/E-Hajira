@@ -78,15 +78,15 @@
                 android:textSize="24sp" />
 
 
-            <Button
-                android:layout_gravity="center_horizontal"
-                android:id="@+id/btnSubmit"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:text="@string/submit"
-                android:textSize="18sp" />
+<!--            <Button-->
+<!--                android:layout_gravity="center_horizontal"-->
+<!--                android:id="@+id/btnSubmit"-->
+<!--                style="@style/Widget.AppCompat.Button.Colored"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_margin="16dp"-->
+<!--                android:text="@string/submit"-->
+<!--                android:textSize="18sp" />-->
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

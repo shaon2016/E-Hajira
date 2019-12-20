@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.util.Base64
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import com.copotronic.stu.R
 import com.copotronic.stu.ScannerAction
@@ -15,6 +17,7 @@ import com.mantra.mfs100.FingerData
 import com.mantra.mfs100.MFS100
 import com.mantra.mfs100.MFS100Event
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.toolbar.*
 
 class MainActivity : AppCompatActivity(), MFS100Event {
     private lateinit var db: AppDb
@@ -26,8 +29,6 @@ class MainActivity : AppCompatActivity(), MFS100Event {
     private var rightCapFingerData: FingerData? = null
     private var scannerAction = ScannerAction.Capture
 
-    private var fingerTemplate: ByteArray? = null
-
     private lateinit var mfs100: MFS100
     private var isCaptureRunning = false
 
@@ -35,6 +36,7 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        setSupportActionBar(toolbar)
 
         db = AppDb.getInstance(this)!!
 
@@ -56,9 +58,9 @@ class MainActivity : AppCompatActivity(), MFS100Event {
             startSyncFingerCapture()
         }
 
-        btnSubmit.setOnClickListener {
-            validateUser()
-        }
+//        btnSubmit.setOnClickListener {
+//            validateUser()
+//        }
     }
 
     private fun validateUser() {
@@ -133,6 +135,13 @@ class MainActivity : AppCompatActivity(), MFS100Event {
                             if (leftFingerMatchRet >= 96 || rightFingerMatchRet >= 96) {
                                 this@MainActivity.runOnUiThread {
                                     D.showToastLong(this@MainActivity, "Finger matched")
+                                    startActivity(
+                                        Intent(
+                                            this@MainActivity,
+                                            StudentDetailsActivity::class.java
+                                        ).apply {
+                                            putExtra("user", user)
+                                        })
                                 }
                             } else {
                                 this@MainActivity.runOnUiThread {
@@ -346,6 +355,22 @@ class MainActivity : AppCompatActivity(), MFS100Event {
                 + fingerData.Bpp() + "\nWSQ Info: "
                 + fingerData.WSQInfo())
         showLonOnLogcat(log)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.action_settings -> {
+                startActivity(Intent(this, SettingActivity::class.java))
+                return true
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
     }
 
 }

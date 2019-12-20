@@ -8,9 +8,6 @@ import com.copotronic.stu.R
 import com.copotronic.stu.adapters.UserRvAdapter
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.model.User
-import com.copotronic.stu.other.Notification
-import com.copotronic.stu.other.NotificationPreference
-import com.copotronic.stu.other.NotificationType
 import kotlinx.android.synthetic.main.activity_users.*
 
 class UsersActivity : AppCompatActivity() {

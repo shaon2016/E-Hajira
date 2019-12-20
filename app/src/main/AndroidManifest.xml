@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.copotronic.stu">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -15,8 +15,8 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:exported="true"
-            android:name=".activities.AddNoticeActivity"></activity>
+            android:name=".activities.AddNoticeActivity"
+            android:exported="true" />
         <activity
             android:name=".activities.UsersActivity"
             android:exported="true" />
@@ -27,15 +27,17 @@
             android:name=".activities.InstituteSettingActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.SplashActivity"
+            android:name=".activities.SettingActivity"
             android:exported="true" />
         <activity android:name=".activities.LoginActivity" />
-        <activity android:name=".activities.StudentDetailsActivity" />
         <activity
-            android:exported="true"
-            android:name=".activities.MainActivity" />
+            android:name=".activities.StudentDetailsActivity"
+            android:exported="true" />
         <activity
-            android:name=".activities.SettingActivity"
+            android:name=".activities.MainActivity"
+            android:exported="true" />
+        <activity
+            android:name=".activities.SplashActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
