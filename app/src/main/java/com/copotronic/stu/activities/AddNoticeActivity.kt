@@ -1,6 +1,7 @@
 package com.copotronic.stu.activities
 
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
@@ -31,8 +32,9 @@ class AddNoticeActivity : AppCompatActivity() {
     private var typeId = 0
     /** Request code for gallery image selection for ad post*/
     private val REQUEST_GALLERY_IMAGE = 231
-    private var image : Image? = null
+    private var image: Image? = null
     private var noticeText = ""
+    private var noticeDate = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,14 +62,37 @@ class AddNoticeActivity : AppCompatActivity() {
                 .start(REQUEST_GALLERY_IMAGE)
         }
 
+        btnAddDate.setOnClickListener {
+            setDate()
+        }
+
         btnSubmit.setOnClickListener {
             save()
         }
     }
 
+    private fun setDate() {
+        val cal = Calendar.getInstance()
+        val y = cal.get(Calendar.YEAR)
+        val m = cal.get(Calendar.MONTH)
+        val d = cal.get(Calendar.DAY_OF_MONTH)
+
+        DatePickerDialog(
+            this,
+            DatePickerDialog.OnDateSetListener
+            { pickerView, year, month, dayOfMonth ->
+                val cal_ = Calendar.getInstance()
+                cal_.set(year, month, dayOfMonth)
+
+                noticeDate = U.reformatDate(cal_.time, "yyyy-MM-dd")
+            },
+            y, m, d
+        )
+    }
+
     private fun save() {
         noticeText = evNotice.text.toString()
-        val notice = Notice(0, image?.path ?: "", typeId, noticeText)
+        val notice = Notice(0, image?.path ?: "", typeId, noticeText, noticeDate)
 
         image?.let {
             copyFileToDestination()
@@ -116,7 +141,8 @@ class AddNoticeActivity : AppCompatActivity() {
             val image = ImagePicker.getFirstImageOrNull(data)
 
             this.image = image
-            tvImageNoticeName.text = image?.name  }
+            tvImageNoticeName.text = image?.name
+        }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
@@ -135,7 +161,6 @@ class AddNoticeActivity : AppCompatActivity() {
         Thread {
             U.copyOrMoveFile(src, destination, true)
         }.start()
-
 
 
     }

@@ -129,7 +129,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                             .toolbarImageTitle(getString(R.string.tap_to_select)) // image selection title
                             .toolbarArrowColor(Color.BLACK)
                             .limit(1)
-                            .showCamera(false)
+                            .showCamera(true)
                             .toolbarArrowColor(ContextCompat.getColor(this@AddUserActivity, R.color.white))
                             .start(REQUEST_GALLERY_IMAGE)
 
@@ -404,7 +404,6 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
         })
     }
 
-
     private fun showSuccessLog(key: String) {
         try {
             setFingerPrintDeviceTextOnUIThread("Device is ready")
@@ -593,7 +592,15 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                         fingerData.FingerImage(), 0,
                         fingerData.FingerImage().size
                     )
-                    this@AddUserActivity.runOnUiThread { ivLeftFinger.setImageBitmap(bitmap) }
+                    this@AddUserActivity.runOnUiThread { ivLeftFinger.setImageBitmap(bitmap)
+                        setFingerPrintDeviceTextOnUIThread("Capture Success")
+                        tvLeftFingerCaptureMsg.text = "Captured"
+                        fingerLog(fingerData)
+                        setLeftFingerData(fingerData)
+
+                        Log.d("DATATAG", Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT))
+
+                    }
 
 /*                    Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
                     Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
@@ -607,14 +614,9 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     val bitmap = BitmapFactory.decodeByteArray(b, 0, b.size)
                     this@AddUserActivity.runOnUiThread { ivLeftFinger.setImageBitmap(bitmap) }*/
 
-                    setFingerPrintDeviceTextOnUIThread("Capture Success")
-                    tvLeftFingerCaptureMsg.text = "Captured"
-                    fingerLog(fingerData)
-                    setLeftFingerData(fingerData)
-
-                    Log.d("DATATAG", Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT))
-                }
+                    }
             } catch (ex: Exception) {
+                ex.printStackTrace()
                 setFingerPrintDeviceTextOnUIThread("Error")
             } finally {
                 isCaptureRunning = false
@@ -639,17 +641,20 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                         fingerData.FingerImage(), 0,
                         fingerData.FingerImage().size
                     )
-                    this@AddUserActivity.runOnUiThread { ivRightFinger.setImageBitmap(bitmap) }
+                    this@AddUserActivity.runOnUiThread { ivRightFinger.setImageBitmap(bitmap)
+                        setFingerPrintDeviceTextOnUIThread("Capture Success")
+                        tvRightFingerCaptureMsg.text = "Captured"
+                        fingerLog(fingerData)
+                        setRightFingerData(fingerData)
+                    }
 
                     //Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
                     //                        Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
 
-                    setFingerPrintDeviceTextOnUIThread("Capture Success")
-                    tvRightFingerCaptureMsg.text = "Captured"
-                    fingerLog(fingerData)
-                    setRightFingerData(fingerData)
+
                 }
             } catch (ex: Exception) {
+                ex.printStackTrace()
                 setFingerPrintDeviceTextOnUIThread("Error")
             } finally {
                 isCaptureRunning = false
@@ -722,6 +727,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
         }*/
 
     }
+
     private fun setRightFingerData(
         fingerData: FingerData) {
         try {

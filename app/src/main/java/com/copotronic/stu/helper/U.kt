@@ -11,6 +11,22 @@ import java.util.*
 
 object U {
 
+    fun reformatDate(date: Date, toFormat: String): String {
+        val toDateFormat = SimpleDateFormat(toFormat, Locale.ENGLISH)
+        return toDateFormat.format(date)
+    }
+
+    fun parseDateSimple(dateStr: String): Date {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+        try {
+            return sdf.parse(dateStr)
+        } catch (e: ParseException) {
+            e.printStackTrace()
+        }
+
+        return Date()
+    }
+
     fun getTimeInCalendarFormat(input: String): Calendar? {
         //Date/time pattern of input date
         val df = SimpleDateFormat("HH:mm:ss", Locale.US)

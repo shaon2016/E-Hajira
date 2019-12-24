@@ -21,16 +21,24 @@ class StudentDetailsActivity : AppCompatActivity() {
 
         db = AppDb.getInstance(this)!!
 
-        user = intent?.extras?.getSerializable("user") as User
-
-        val userImage = BitmapFactory.decodeFile(user!!.imagePath)
-        ivStudent.setImageBitmap(userImage)
+       user = intent?.extras?.getSerializable("user") as User
+      //  db.userDao().findUserByUserId("2")
+//        try {
+//            Thread {
+//                val userImage = BitmapFactory.decodeFile(user!!.imagePath)
+//                this@StudentDetailsActivity.runOnUiThread {
+//                    ivStudent.setImageBitmap(userImage)
+//                }
+//            }.start()
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
 
 
         try {
             val ut = db.userTypeDao().utById(user!!.userTypeId)
             tvAssignedFor.text = "Assigned for: ${ut.name}"
-        }catch (e : Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
 

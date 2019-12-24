@@ -18,10 +18,10 @@
         android:textSize="24sp" />
 
     <ImageView
+        android:background="@color/blue"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_marginTop="16dp"
-        android:src="@drawable/beats" />
+        android:layout_marginTop="16dp" />
 
     <TextView
         android:id="@+id/tvDate"
