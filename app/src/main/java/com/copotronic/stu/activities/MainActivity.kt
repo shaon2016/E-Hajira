@@ -13,7 +13,7 @@ import com.copotronic.stu.R
 import com.copotronic.stu.ScannerAction
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.helper.D
-import com.copotronic.stu.helper.U
+import com.copotronic.stu.model.User
 import com.mantra.mfs100.FingerData
 import com.mantra.mfs100.MFS100
 import com.mantra.mfs100.MFS100Event
@@ -30,6 +30,8 @@ class MainActivity : AppCompatActivity(), MFS100Event {
     private var rightCapFingerData: FingerData? = null
     private var scannerAction = ScannerAction.Capture
 
+    private var fingerTemplate: ByteArray? = null
+
     private lateinit var mfs100: MFS100
     private var isCaptureRunning = false
 
@@ -44,18 +46,10 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         initMFS100()
 
         handleBtn()
-
-
     }
 
     private fun handleBtn() {
         btnScanFinger.setOnClickListener {
-            val userId = evUserId.text.toString()
-
-            if (userId.isNullOrEmpty()) {
-                D.showToastShort(this@MainActivity, "Insert user id")
-                return@setOnClickListener
-            }
 
             scannerAction = ScannerAction.Capture
             startSyncFingerCapture()
@@ -82,85 +76,36 @@ class MainActivity : AppCompatActivity(), MFS100Event {
                 if (ret != 0) {
                     setFingerPrintDeviceTextOnUIThread(mfs100.GetErrorMsg(ret))
                 } else {
-                    val fingerRawDataInStr =
-                        Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT)
+                    val allUser = db.userDao().allUser()
 
+                    setFingerPrintDeviceTextOnUIThread("Capture Success")
 
-                    // check in db for both finger
-                    val user = db.userDao().findUserByUserId(evUserId.text.toString())
+                    // Checking all user to match our current user finger print
+                    var isMatched = false
+                    var user  = User()
+                    for (i in allUser.indices) {
+                        val u = allUser[i]
+                        isMatched = matchFinger(u, fingerData, ret)
 
-//                    this@MainActivity.runOnUiThread {
-//                        if (user != null) {
-//                            D.showToastShort(this, "User found")
-//
-////                           startActivity(
-////                               Intent(
-////                                   this@MainActivity,
-////                                   StudentDetailsActivity::class.java
-////                               ).apply {
-////                                   putExtra("user", user)
-////                               })
-//                        } else {
-//                            D.showToastShort(this, "No match in database. Try again!")
-//                        }
-//                    }
-
-
-                    val fingerTemplate = ByteArray(fingerData.ISOTemplate().size)
-                    System.arraycopy(
-                        fingerData.ISOTemplate(), 0, fingerTemplate, 0,
-                        fingerData.ISOTemplate().size
-                    )
-
-                    if (user != null) {
-                        this@MainActivity.runOnUiThread {
-                            D.showToastShort(this, "User found")
-                        }
-                        val savedLeftFingerISOTemplateData =
-                            Base64.decode(user.leftFingerISOTemplateDataBase64, Base64.DEFAULT)
-                        val savedRightFingerISOTemplateData =
-                            Base64.decode(user.rightFingerISOTemplateDataBase64, Base64.DEFAULT)
-
-
-                        val leftFingerMatchRet =
-                            mfs100.MatchISO(fingerTemplate, savedLeftFingerISOTemplateData)
-                        val rightFingerMatchRet =
-                            mfs100.MatchISO(fingerTemplate, savedRightFingerISOTemplateData)
-
-
-                        if (leftFingerMatchRet < 0 || rightFingerMatchRet < 0) {
-                            setFingerPrintDeviceTextOnUIThread(
-                                "Error: $ret(" + mfs100.GetErrorMsg(
-                                    ret
-                                ) + ")"
-                            )
-                        } else {
-                            if (leftFingerMatchRet >= 96 || rightFingerMatchRet >= 96) {
-                                this@MainActivity.runOnUiThread {
-                                    D.showToastLong(this@MainActivity, "Finger matched")
-                                    startActivity(
-                                        Intent(
-                                            this@MainActivity,
-                                            StudentDetailsActivity::class.java
-                                        ).apply {
-                                            putExtra("user", user)
-                                        })
-                                }
-                            } else {
-                                this@MainActivity.runOnUiThread {
-                                    D.showToastLong(this@MainActivity, "Finger not matched")
-                                }
-                            }
-                        }
-                    } else {
-                        this@MainActivity.runOnUiThread {
-                            D.showToastShort(this, "No match in database. Try again!")
+                        if (isMatched) {
+                            user = u
+                            break
                         }
                     }
 
+                    this@MainActivity.runOnUiThread {
+                        if (isMatched) {
+                            D.showToastLong(this, "Finger matched")
+                            startActivity(Intent(this,
+                                StudentDetailsActivity::class.java).apply {
+                                putExtra("user", user)
+                            })
+                        }else {
+                            D.showToastLong(this, "Finger not matched")
 
-                    setFingerPrintDeviceTextOnUIThread("Capture Success")
-                    fingerLog(fingerData)
+                        }
+                    }
+                    //  fingerLog(fingerData)
                 }
             } catch (ex: Exception) {
                 setFingerPrintDeviceTextOnUIThread("Error")
@@ -171,6 +116,29 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         }).start()
     }
 
+    private fun matchFinger(user: User, fingerData: FingerData, ret: Int): Boolean {
+        val fingerTemplate = ByteArray(fingerData.ISOTemplate().size)
+        System.arraycopy(
+            fingerData.ISOTemplate(), 0, fingerTemplate, 0,
+            fingerData.ISOTemplate().size
+        )
+
+        val savedLeftFingerISOTemplateData =
+            Base64.decode(user.leftFingerISOTemplateDataBase64, Base64.DEFAULT)
+        val savedRightFingerISOTemplateData =
+            Base64.decode(user.rightFingerISOTemplateDataBase64, Base64.DEFAULT)
+
+        val leftFingerMatchRet =
+            mfs100.MatchISO(fingerTemplate, savedLeftFingerISOTemplateData)
+        val rightFingerMatchRet =
+            mfs100.MatchISO(fingerTemplate, savedRightFingerISOTemplateData)
+
+        return if (leftFingerMatchRet < 0 || rightFingerMatchRet < 0) {
+            false
+        } else {
+            leftFingerMatchRet >= 96 || rightFingerMatchRet >= 96
+        }
+    }
 
     private fun initMFS100() {
         try {

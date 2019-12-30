@@ -11,6 +11,9 @@ interface UserDao {
     @Query("select * from user")
     fun all() : LiveData<List<User>>
 
+    @Query("select * from user")
+    fun allUser() : List<User>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(user: User)
 

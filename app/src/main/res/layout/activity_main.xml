@@ -53,14 +53,6 @@
                 android:textSize="22sp"
                 tools:text="12:00 PM" />
 
-            <EditText
-                android:id="@+id/evUserId"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:hint="@string/user_id"
-                android:padding="16dp" />
-
             <Button
                 android:id="@+id/btnScanFinger"
                 style="@style/Widget.AppCompat.Button.Colored"

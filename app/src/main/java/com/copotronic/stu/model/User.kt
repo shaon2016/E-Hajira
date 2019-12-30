@@ -12,7 +12,7 @@ data class User(
     val id: Int = 0,
     @ColumnInfo(name = "user_id")
     var userId: String = "",
-    var name: String,
+    var name: String = "",
     @ColumnInfo(name = "user_type_id")
     var userTypeId: Int = 0,
     @ColumnInfo(name = "user_designation_id")
@@ -36,6 +36,9 @@ data class User(
     @ColumnInfo(name = "left_finger_iso_template_base64")
     var leftFingerISOTemplateDataBase64 : String = "",
     @ColumnInfo(name = "right_finger_iso_template_base64")
-    var rightFingerISOTemplateDataBase64 : String = ""
-
-    ) : Serializable
+    var rightFingerISOTemplateDataBase64 : String = "",
+    @ColumnInfo(name = "left_finger_iso_template_byte_array", typeAffinity = ColumnInfo.BLOB)
+    var leftFingerISOTemplateDataByteArray : ByteArray = byteArrayOf(),
+    @ColumnInfo(name = "right_finger_iso_template_byte_array", typeAffinity = ColumnInfo.BLOB)
+    var rightFingerISOTemplateDataByteArray : ByteArray = byteArrayOf()
+) : Serializable

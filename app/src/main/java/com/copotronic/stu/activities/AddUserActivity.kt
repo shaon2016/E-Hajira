@@ -64,6 +64,8 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
 
     private var leftFingerFingerImageDataInStr: String? = null
     private var rightFingerFingerImageDataInStr: String? = null
+    private var leftFingerFingerImageDataInByteArray: ByteArray? = null
+    private var rightFingerFingerImageDataInByteArray: ByteArray? = null
     private var leftFingerISOTemplateDataInStr: String? = null
     private var rightFingerISOTemplateDataInStr: String? = null
 
@@ -117,29 +119,14 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
         }
 
         btnAddUserImage.setOnClickListener {
-            Dexter.withActivity(this).withPermissions(
-                arrayListOf(
-                    Manifest.permission.CAMERA,
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE))
-                .withListener(object : MultiplePermissionsListener {
-                    override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                        ImagePicker.create(this@AddUserActivity)
-                            .toolbarFolderTitle(getString(R.string.folder)) // folder selection title
-                            .toolbarImageTitle(getString(R.string.tap_to_select)) // image selection title
-                            .toolbarArrowColor(Color.BLACK)
-                            .limit(1)
-                            .showCamera(true)
-                            .toolbarArrowColor(ContextCompat.getColor(this@AddUserActivity, R.color.white))
-                            .start(REQUEST_GALLERY_IMAGE)
-
-                    }
-
-                    override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
-                        token?.continuePermissionRequest()
-                    }
-                }).check()
-
+            ImagePicker.create(this)
+                .toolbarFolderTitle(getString(R.string.folder)) // folder selection title
+                .toolbarImageTitle(getString(R.string.tap_to_select)) // image selection title
+                .toolbarArrowColor(Color.BLACK)
+                .limit(1)
+                .showCamera(true)
+                .toolbarArrowColor(ContextCompat.getColor(this, R.color.white))
+                .start(REQUEST_GALLERY_IMAGE)
         }
 
         btnVerifyCaptureLeftFinger.setOnClickListener {
@@ -198,10 +185,6 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
         val pin = evPin.text.toString()
         val desc = evLineDescription.text.toString()
 
-        if (image?.path == null) {
-            D.showToastShort(this, "You have not selected any image")
-            return
-        }
 
         if (pin.isNullOrEmpty()) {
             D.showToastShort(this, "Insert user pin")
@@ -224,16 +207,14 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
             return
         }
 
-
-
-//        if (leftFingerFingerImageDataInStr.isNullOrEmpty()) {
-//            D.showToastShort(this, "Left finger data is missing")
-//            return
-//        }
-//        if (rightFingerFingerImageDataInStr.isNullOrEmpty()) {
-//            D.showToastShort(this, "Right finger data is missing")
-//            return
-//        }
+        if (leftFingerFingerImageDataInStr.isNullOrEmpty()) {
+            D.showToastShort(this, "Left finger data is missing")
+            return
+        }
+        if (rightFingerFingerImageDataInStr.isNullOrEmpty()) {
+            D.showToastShort(this, "Right finger data is missing")
+            return
+        }
 
         image?.let {
             copyFileToDestination()
@@ -242,8 +223,11 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
         Thread {
             val user = User(
                 0, userId, name, typeId, desgId, deptId, secId, shiftId, pin,
-                image?.path ?: "", desc, leftFingerFingerImageDataInStr ?: "", rightFingerFingerImageDataInStr ?: "",
-                leftFingerISOTemplateDataInStr ?: "", rightFingerISOTemplateDataInStr ?: ""
+                image?.path ?: "", desc, leftFingerFingerImageDataInStr!!, rightFingerFingerImageDataInStr!!,
+                leftFingerISOTemplateDataInStr!!, rightFingerISOTemplateDataInStr!!,
+
+                leftFingerFingerImageDataInByteArray ?: byteArrayOf(),
+                rightFingerFingerImageDataInByteArray ?: byteArrayOf()
             )
             db.userDao().insert(user)
         }.start()
@@ -403,6 +387,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
             } else spinUserType.visibility = View.GONE
         })
     }
+
 
     private fun showSuccessLog(key: String) {
         try {
@@ -592,15 +577,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                         fingerData.FingerImage(), 0,
                         fingerData.FingerImage().size
                     )
-                    this@AddUserActivity.runOnUiThread { ivLeftFinger.setImageBitmap(bitmap)
-                        setFingerPrintDeviceTextOnUIThread("Capture Success")
-                        tvLeftFingerCaptureMsg.text = "Captured"
-                        fingerLog(fingerData)
-                        setLeftFingerData(fingerData)
-
-                        Log.d("DATATAG", Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT))
-
-                    }
+                    this@AddUserActivity.runOnUiThread { ivLeftFinger.setImageBitmap(bitmap) }
 
 /*                    Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
                     Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
@@ -614,9 +591,14 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     val bitmap = BitmapFactory.decodeByteArray(b, 0, b.size)
                     this@AddUserActivity.runOnUiThread { ivLeftFinger.setImageBitmap(bitmap) }*/
 
-                    }
+                    setFingerPrintDeviceTextOnUIThread("Capture Success")
+                    tvLeftFingerCaptureMsg.text = "Captured"
+                    fingerLog(fingerData)
+                    setLeftFingerData(fingerData)
+
+                    Log.d("DATATAG", Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT))
+                }
             } catch (ex: Exception) {
-                ex.printStackTrace()
                 setFingerPrintDeviceTextOnUIThread("Error")
             } finally {
                 isCaptureRunning = false
@@ -641,20 +623,17 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                         fingerData.FingerImage(), 0,
                         fingerData.FingerImage().size
                     )
-                    this@AddUserActivity.runOnUiThread { ivRightFinger.setImageBitmap(bitmap)
-                        setFingerPrintDeviceTextOnUIThread("Capture Success")
-                        tvRightFingerCaptureMsg.text = "Captured"
-                        fingerLog(fingerData)
-                        setRightFingerData(fingerData)
-                    }
+                    this@AddUserActivity.runOnUiThread { ivRightFinger.setImageBitmap(bitmap) }
 
                     //Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
                     //                        Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
 
-
+                    setFingerPrintDeviceTextOnUIThread("Capture Success")
+                    tvRightFingerCaptureMsg.text = "Captured"
+                    fingerLog(fingerData)
+                    setRightFingerData(fingerData)
                 }
             } catch (ex: Exception) {
-                ex.printStackTrace()
                 setFingerPrintDeviceTextOnUIThread("Error")
             } finally {
                 isCaptureRunning = false
@@ -684,6 +663,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
         try {
             if (scannerAction == ScannerAction.Capture) {
                 leftEnrollTemplate = ByteArray(fingerData.ISOTemplate().size)
+
                 System.arraycopy(
                     fingerData.ISOTemplate(), 0, leftEnrollTemplate, 0,
                     fingerData.ISOTemplate().size
@@ -706,6 +686,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     )
                 } else {
                     if (ret >= 96) {
+                        leftFingerFingerImageDataInByteArray = fingerData.ISOTemplate()
                         leftFingerFingerImageDataInStr = Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT)
                         leftFingerISOTemplateDataInStr = Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT)
                         tvLeftFingerVerifyMsg.text = "Finger matched"
@@ -727,7 +708,6 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
         }*/
 
     }
-
     private fun setRightFingerData(
         fingerData: FingerData) {
         try {
@@ -755,6 +735,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     )
                 } else {
                     if (ret >= 96) {
+                        rightFingerFingerImageDataInByteArray = fingerData.ISOTemplate()
                         rightFingerFingerImageDataInStr = Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT)
                         rightFingerISOTemplateDataInStr = Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT)
                         tvRightFingerVerifyMsg.text = "Finger matched"
