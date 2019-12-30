@@ -34,6 +34,7 @@
             android:name=".activities.StudentDetailsActivity"
             android:exported="true" />
         <activity
+            android:windowSoftInputMode="stateHidden"
             android:name=".activities.MainActivity"
             android:exported="true" />
         <activity

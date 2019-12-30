@@ -13,6 +13,7 @@ import com.copotronic.stu.R
 import com.copotronic.stu.ScannerAction
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.helper.D
+import com.copotronic.stu.helper.U
 import com.mantra.mfs100.FingerData
 import com.mantra.mfs100.MFS100
 import com.mantra.mfs100.MFS100Event
@@ -43,6 +44,8 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         initMFS100()
 
         handleBtn()
+
+
     }
 
     private fun handleBtn() {
