@@ -1,6 +1,8 @@
 package com.copotronic.stu.activities
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
@@ -8,17 +10,24 @@ import android.util.Base64
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import com.copotronic.stu.R
 import com.copotronic.stu.ScannerAction
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.helper.D
+import com.copotronic.stu.helper.U
+import com.copotronic.stu.model.Notice
 import com.copotronic.stu.model.User
 import com.mantra.mfs100.FingerData
 import com.mantra.mfs100.MFS100
 import com.mantra.mfs100.MFS100Event
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.toolbar.*
+import java.util.*
 
 class MainActivity : AppCompatActivity(), MFS100Event {
     private lateinit var db: AppDb
@@ -46,6 +55,35 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         initMFS100()
 
         handleBtn()
+
+        setNotice()
+    }
+
+    @SuppressLint("CheckResult")
+    private fun setNotice() {
+        Observable.fromCallable {
+            val todayDate = U.reformatDate(Calendar.getInstance().time, "yyyy-MM-dd")
+            db.noticeDao().noticeByDate(todayDate)
+        }.observeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ notice ->
+                if (notice != null) {
+                    tvNotice.text = notice.noticeText
+                    Observable.fromCallable {
+                        val myBitmap = BitmapFactory.decodeFile(notice.imageFilePath)
+                        myBitmap
+                    }.observeOn(Schedulers.computation())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe { myBitmap ->
+                            ivNotice.setImageBitmap(myBitmap)
+                        }
+                } else {
+                    tvNotice.text = " No Notice to Show"
+                }
+            }, {
+                tvNotice.text = " No Notice to Show"
+                it.printStackTrace()
+            }, {})
     }
 
     private fun handleBtn() {
@@ -82,7 +120,7 @@ class MainActivity : AppCompatActivity(), MFS100Event {
 
                     // Checking all user to match our current user finger print
                     var isMatched = false
-                    var user  = User()
+                    var user = User()
                     for (i in allUser.indices) {
                         val u = allUser[i]
                         isMatched = matchFinger(u, fingerData, ret)
@@ -96,11 +134,13 @@ class MainActivity : AppCompatActivity(), MFS100Event {
                     this@MainActivity.runOnUiThread {
                         if (isMatched) {
                             D.showToastLong(this, "Finger matched")
-                            startActivity(Intent(this,
-                                StudentDetailsActivity::class.java).apply {
+                            startActivity(Intent(
+                                this,
+                                StudentDetailsActivity::class.java
+                            ).apply {
                                 putExtra("user", user)
                             })
-                        }else {
+                        } else {
                             D.showToastLong(this, "Finger not matched")
 
                         }
@@ -329,7 +369,7 @@ class MainActivity : AppCompatActivity(), MFS100Event {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.action_settings -> {
                 startActivity(Intent(this, SettingActivity::class.java))
                 return true

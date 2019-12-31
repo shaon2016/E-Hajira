@@ -81,13 +81,15 @@ class AddNoticeActivity : AppCompatActivity() {
             this,
             DatePickerDialog.OnDateSetListener
             { pickerView, year, month, dayOfMonth ->
-                val cal_ = Calendar.getInstance()
-                cal_.set(year, month, dayOfMonth)
+                cal.set(year, month, dayOfMonth)
 
-                noticeDate = U.reformatDate(cal_.time, "yyyy-MM-dd")
+                noticeDate = U.reformatDate(cal.time, "yyyy-MM-dd")
+                this@AddNoticeActivity.tvNoticeDate.post {
+                    tvNoticeDate.text = noticeDate
+                }
             },
             y, m, d
-        )
+        ).show()
     }
 
     private fun save() {

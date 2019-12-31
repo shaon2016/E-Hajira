@@ -16,6 +16,9 @@ import com.copotronic.stu.R
 import com.copotronic.stu.activities.AddUserActivity
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.model.User
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import java.lang.Exception
 
 class UserRvAdapter(
@@ -61,8 +64,15 @@ class UserRvAdapter(
 //                )
 //                ivUser.setImageBitmap(leftFingerBitmap)
 
-                            val myBitmap = BitmapFactory.decodeFile(u.imagePath)
-            ivUser.setImageBitmap(myBitmap)
+                Observable.fromCallable {
+                    val myBitmap = BitmapFactory.decodeFile(u.imagePath)
+                    myBitmap
+                }.observeOn(Schedulers.computation())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe {myBitmap->
+                        ivUser.setImageBitmap(myBitmap)
+
+                    }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
