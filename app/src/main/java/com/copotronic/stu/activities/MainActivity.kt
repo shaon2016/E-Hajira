@@ -10,6 +10,7 @@ import android.util.Base64
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import com.copotronic.stu.R
 import com.copotronic.stu.ScannerAction
@@ -77,9 +78,11 @@ class MainActivity : AppCompatActivity(), MFS100Event {
                         }
                 } else {
                     tvNotice.text = " No Notice to Show"
+                    ivNotice.visibility = View.GONE
                 }
             }, {
                 tvNotice.text = " No Notice to Show"
+                ivNotice.visibility = View.GONE
                 it.printStackTrace()
             }, {})
     }

@@ -195,8 +195,16 @@ class UserEditActivity : AppCompatActivity(), MFS100Event {
     }
 
     private fun showUserImage() {
-        val myBitmap = BitmapFactory.decodeFile(image?.path)
-        ivUser.setImageBitmap(myBitmap)
+
+        Observable.fromCallable {
+            //            user = db.userDao().user(2)
+            val userImage = BitmapFactory.decodeFile(image?.path)
+            userImage
+        }.subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ userImage ->
+                ivUser.setImageBitmap(userImage)
+            }, { it.printStackTrace() })
     }
 
     // Saving the new image

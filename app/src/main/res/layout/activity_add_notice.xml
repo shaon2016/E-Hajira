@@ -33,6 +33,15 @@
                 android:layout_marginTop="16dp"
                 android:text="Add Image Notice" />
 
+            <ImageView
+                android:layout_marginTop="8dp"
+                android:layout_gravity="center_horizontal"
+                android:id="@+id/ivNotice"
+                android:layout_width="wrap_content"
+                android:layout_height="332dp"
+                android:scaleType="fitXY"
+                android:src="@drawable/beats" />
+
             <TextView
                 android:id="@+id/tvImageNoticeName"
                 android:layout_width="match_parent"

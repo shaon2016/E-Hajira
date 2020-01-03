@@ -1,8 +1,10 @@
 package com.copotronic.stu.activities
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -21,6 +23,9 @@ import com.copotronic.stu.model.Notice
 import com.copotronic.stu.model.UserType
 import com.esafirm.imagepicker.features.ImagePicker
 import com.esafirm.imagepicker.model.Image
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_add_notice.*
 import java.io.File
 import java.util.*
@@ -144,13 +149,26 @@ class AddNoticeActivity : AppCompatActivity() {
 
             this.image = image
             tvImageNoticeName.text = image?.name
+
+            showUserImage()
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    @SuppressLint("CheckResult")
+    private fun showUserImage() {
+        Observable.fromCallable {
+            //            user = db.userDao().user(2)
+            val userImage = BitmapFactory.decodeFile(image?.path)
+            userImage
+        }.subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ userImage ->
+                ivNotice.setImageBitmap(userImage)
+            }, { it.printStackTrace() })
+    }
+
     private fun copyFileToDestination() {
-
-
         val calender = Calendar.getInstance()
 
         val src = File(image!!.path)
@@ -163,7 +181,6 @@ class AddNoticeActivity : AppCompatActivity() {
         Thread {
             U.copyOrMoveFile(src, destination, true)
         }.start()
-
 
     }
 

@@ -15,6 +15,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.copotronic.stu.R
 import com.copotronic.stu.activities.AddUserActivity
+import com.copotronic.stu.activities.UserDetailsActivity
 import com.copotronic.stu.activities.UserEditActivity
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.model.User
@@ -45,7 +46,7 @@ class UserRvAdapter(
         h.bind(getItem(h.adapterPosition))
     }
 
-    private inner class MyUserVH(v: View) : RecyclerView.ViewHolder(v) {
+    private inner class MyUserVH(val v: View) : RecyclerView.ViewHolder(v) {
         private val tvUserId = v.findViewById<TextView>(R.id.tvUserId)
         private val tvName = v.findViewById<TextView>(R.id.tvName)
         private val btnDelete = v.findViewById<Button>(R.id.btnDelete)
@@ -86,8 +87,16 @@ class UserRvAdapter(
                 context.startActivity(intent)
             }
 
+
+
             btnDelete.setOnClickListener {
                 db.userDao().delete(u)
+            }
+
+            v.setOnClickListener {
+                val intent = Intent(context, UserDetailsActivity::class.java)
+                intent.putExtra("user", u)
+                context.startActivity(intent)
             }
         }
 

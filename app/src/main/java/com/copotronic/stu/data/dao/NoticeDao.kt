@@ -11,6 +11,9 @@ interface NoticeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(notice: Notice)
 
-    @Query("select * from notice where notice_date = :date")
+    @Query("select * from notice where notice_date = :date and user_type_id = 0")
     fun noticeByDate(date: String): Notice
+
+    @Query("select * from notice where user_type_id = :typeId")
+    fun noticeByUserTypeId(typeId: Int): Notice
 }
