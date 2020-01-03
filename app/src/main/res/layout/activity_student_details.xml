@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activities.StudentDetailsActivity">
+    tools:context=".activities.UserDetailsActivity">
 
     <include layout="@layout/toolbar" />
 
@@ -34,30 +34,23 @@
                 android:id="@+id/tvAssignedFor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
-            <TextView
-                android:layout_marginTop="8dp"
-                android:text="Group: "
-                android:textSize="28sp"
-                android:id="@+id/tvUserGroup"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
 
-            <TextView
-                android:id="@+id/tvDate"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:gravity="center"
-                android:textSize="32sp"
-                tools:text="24/10/2019" />
+<!--            <TextView-->
+<!--                android:id="@+id/tvDate"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="24dp"-->
+<!--                android:gravity="center"-->
+<!--                android:textSize="32sp"-->
+<!--                tools:text="24/10/2019" />-->
 
-            <TextView
-                android:id="@+id/tvTime"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textSize="32sp"
-                tools:text="12:00 PM" />
+<!--            <TextView-->
+<!--                android:id="@+id/tvTime"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:gravity="center"-->
+<!--                android:textSize="32sp"-->
+<!--                tools:text="12:00 PM" />-->
 
             <TextView
                 android:textColor="@android:color/holo_red_light"

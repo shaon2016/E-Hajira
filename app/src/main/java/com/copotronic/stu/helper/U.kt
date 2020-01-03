@@ -93,4 +93,17 @@ object U {
         }
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
+
+    fun deleteAFile(path : String ) {
+        Thread {
+            val fdelete = File(path)
+            if (fdelete.exists()) {
+                if (fdelete.delete()) {
+                    System.out.println("file Deleted :$path")
+                } else {
+                    System.out.println("file not Deleted :$path")
+                }
+            }
+        }.start()
+    }
 }

@@ -124,19 +124,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textSize="24sp" />
             <TextView
-                android:padding="16dp"
-                android:id="@+id/tvFingerEnrollMsg"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_horizontal"
-                android:text="Finger print hasn't been enrolled yet"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textSize="18sp" />
-
-            <TextView
                 android:id="@+id/tvDeviceMsg"
-                android:padding="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"

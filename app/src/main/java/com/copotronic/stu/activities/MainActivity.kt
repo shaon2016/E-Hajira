@@ -10,14 +10,12 @@ import android.util.Base64
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import com.copotronic.stu.R
 import com.copotronic.stu.ScannerAction
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.helper.D
 import com.copotronic.stu.helper.U
-import com.copotronic.stu.model.Notice
 import com.copotronic.stu.model.User
 import com.mantra.mfs100.FingerData
 import com.mantra.mfs100.MFS100
@@ -136,7 +134,7 @@ class MainActivity : AppCompatActivity(), MFS100Event {
                             D.showToastLong(this, "Finger matched")
                             startActivity(Intent(
                                 this,
-                                StudentDetailsActivity::class.java
+                                UserDetailsActivity::class.java
                             ).apply {
                                 putExtra("user", user)
                             })

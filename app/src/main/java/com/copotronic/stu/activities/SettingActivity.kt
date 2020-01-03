@@ -78,7 +78,7 @@ class SettingActivity : AppCompatActivity() {
                     }
 
                     user.pinNo = newConfirmPass
-                    db.userDao().update(user)
+                    db.userDao().insert(user)
 
                     D.showToastLong(this@SettingActivity, "Password successfully changed")
                     dismiss()

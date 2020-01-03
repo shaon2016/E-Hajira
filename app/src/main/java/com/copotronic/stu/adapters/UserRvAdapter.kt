@@ -1,5 +1,6 @@
 package com.copotronic.stu.adapters
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -14,6 +15,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.copotronic.stu.R
 import com.copotronic.stu.activities.AddUserActivity
+import com.copotronic.stu.activities.UserEditActivity
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.model.User
 import io.reactivex.Observable
@@ -50,6 +52,7 @@ class UserRvAdapter(
         private val btnEdit = v.findViewById<Button>(R.id.btnEdit)
         private val ivUser = v.findViewById<ImageView>(R.id.ivUser)
 
+        @SuppressLint("CheckResult")
         fun bind(u: User) {
             tvName.text = u.name
             tvUserId.text = u.id.toString()
@@ -65,22 +68,21 @@ class UserRvAdapter(
 //                ivUser.setImageBitmap(leftFingerBitmap)
 
                 Observable.fromCallable {
+                    Log.d("DATATAG", u.imagePath)
+
                     val myBitmap = BitmapFactory.decodeFile(u.imagePath)
                     myBitmap
                 }.observeOn(Schedulers.computation())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe {myBitmap->
-                        ivUser.setImageBitmap(myBitmap)
-
-                    }
+                    .subscribe ({myBitmap->
+                        ivUser.setImageBitmap(myBitmap)}, {it.printStackTrace()})
             } catch (e: Exception) {
                 e.printStackTrace()
             }
 
             btnEdit.setOnClickListener {
-                val intent = Intent(context, AddUserActivity::class.java)
+                val intent = Intent(context, UserEditActivity::class.java)
                 intent.putExtra("user", u)
-                intent.putExtra("user_edit", true)
                 context.startActivity(intent)
             }
 

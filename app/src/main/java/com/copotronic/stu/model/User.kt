@@ -13,6 +13,7 @@ data class User(
     @ColumnInfo(name = "user_id")
     var userId: String = "",
     var name: String = "",
+    var mobile: String = "",
     @ColumnInfo(name = "user_type_id")
     var userTypeId: Int = 0,
     @ColumnInfo(name = "user_designation_id")

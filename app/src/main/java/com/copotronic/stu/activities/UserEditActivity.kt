@@ -1,5 +1,6 @@
 package com.copotronic.stu.activities
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -27,13 +28,15 @@ import com.esafirm.imagepicker.model.Image
 import com.mantra.mfs100.FingerData
 import com.mantra.mfs100.MFS100
 import com.mantra.mfs100.MFS100Event
-import kotlinx.android.synthetic.main.activity_add_user.*
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_user_edit.*
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
-class AddUserActivity : AppCompatActivity(), MFS100Event {
-
+class UserEditActivity : AppCompatActivity(), MFS100Event {
 
     private lateinit var db: AppDb
     private var desgId = 0
@@ -56,58 +59,61 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
     private var leftVerifyTemplate: ByteArray? = null
     private var rightVerifyTemplate: ByteArray? = null
 
-    private var leftFingerFingerImageDataInStr: String? = null
-    private var rightFingerFingerImageDataInStr: String? = null
-    private var leftFingerFingerImageDataInByteArray: ByteArray? = null
-    private var rightFingerFingerImageDataInByteArray: ByteArray? = null
-    private var leftFingerISOTemplateDataInStr: String? = null
-    private var rightFingerISOTemplateDataInStr: String? = null
+//    private var leftFingerFingerImageDataInStr: String? = null
+//    private var rightFingerFingerImageDataInStr: String? = null
+//    private var leftFingerFingerImageDataInByteArray: ByteArray? = null
+//    private var rightFingerFingerImageDataInByteArray: ByteArray? = null
+//    private var leftFingerISOTemplateDataInStr: String? = null
+//    private var rightFingerISOTemplateDataInStr: String? = null
 
     // User image
     /** Request code for gallery image selection for ad post*/
     private val REQUEST_GALLERY_IMAGE = 231
-    /**
-     * User image pick from this path
-    * */
-    private var userImage: Image? = null
-    /**
-     * User image saved into this path
-     * */
-    private var userImageFilePathTo: String = ""
+    private var image: Image? = null
+
+    private lateinit var user: User
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_user)
+        setContentView(R.layout.activity_user_edit)
+
+
 
         initVar()
         initView()
     }
 
     private fun initVar() {
+        user = intent?.extras?.getSerializable("user") as User
         db = AppDb.getInstance(this)!!
 
         initMFS100()
-    }
 
-    private fun initMFS100() {
-        try {
-            mfs100 = MFS100(this)
-            mfs100.SetApplicationContext(this)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+//        leftFingerFingerImageDataInStr = user.leftFingerDataBase64
+//        rightFingerFingerImageDataInStr = user.rightFingerDataBase64
+//        leftFingerISOTemplateDataInStr = user.leftFingerISOTemplateDataBase64
+//        rightFingerISOTemplateDataInStr = user.rightFingerISOTemplateDataBase64
+//        leftFingerFingerImageDataInByteArray = user.leftFingerISOTemplateDataByteArray
+//        rightFingerFingerImageDataInByteArray = user.rightFingerISOTemplateDataByteArray
+
 
     }
 
     private fun initView() {
+        setUserValueInEV()
+        setUserImage()
+
+
         setDesignation()
         setDepts()
         setSection()
         setShifts()
         setUserTypes()
 
+
         btnSubmit.setOnClickListener {
-            save()
+            update()
         }
 
         btnStartCaptureLeftFinger.setOnClickListener {
@@ -144,99 +150,151 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
         }
     }
 
+    @SuppressLint("CheckResult")
+    private fun setUserImage() {
+        Observable.fromCallable {
+            val userImage = BitmapFactory.decodeFile(user.imagePath)
+            userImage
+        }.subscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ userImage ->
+                ivUser.setImageBitmap(userImage)
+            }, { it.printStackTrace() })
+    }
+
+    private fun initMFS100() {
+        try {
+            mfs100 = MFS100(this)
+            mfs100.SetApplicationContext(this)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+    }
+
+
+    private fun setUserValueInEV() {
+        evUserId.setText(user.userId)
+        evName.setText(user.name)
+        evMobile.setText(user.mobile)
+        evPin.setText(user.pinNo)
+        evLineDescription.setText(user.lineDescription)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_GALLERY_IMAGE && resultCode == Activity.RESULT_OK) {
             val image = ImagePicker.getFirstImageOrNull(data)
 
-            this.userImage = image
+            this.image = image
 
             showUserImage()
+
         }
 
         super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun showUserImage() {
-        val myBitmap = BitmapFactory.decodeFile(userImage?.path)
+        val myBitmap = BitmapFactory.decodeFile(image?.path)
         ivUser.setImageBitmap(myBitmap)
     }
 
+    // Saving the new image
+    // deleting the previous image
+    @SuppressLint("CheckResult")
     private fun copyFileToDestination() {
 
-        val calender = Calendar.getInstance()
-
-        val src = File(userImage!!.path)
-        val destination = File(
-
-            getExternalFilesDir(
-                Environment.DIRECTORY_PICTURES
-            ), "${calender.timeInMillis}${userImage?.name}"
-        )
-        userImageFilePathTo = destination.absolutePath
-        Log.d("DATATAG", userImageFilePathTo)
-        Thread {
-            U.copyOrMoveFile(src, destination, true)
-        }.start()
     }
 
-    private fun save() {
-        val name = evName.text.toString()
-        val userId = evUserId.text.toString()
-        val mobileNo = evMobile.text.toString()
-        val pin = evPin.text.toString()
-        val desc = evLineDescription.text.toString()
+    @SuppressLint("CheckResult")
+    private fun startUpdating() {
+        Log.d("DATATAG", "Called 3")
+
+        Observable.fromCallable {
+            val user = User(
+                user.id, user.userId, user.name, user.mobile, user.userTypeId, user.designationId,
+                user.departmentId, user.sectionId, user.shiftId, user.pinNo,
+                user.imagePath, user.lineDescription, user.leftFingerDataBase64,
+                user.rightFingerDataBase64,
+                user.leftFingerISOTemplateDataBase64, user.rightFingerISOTemplateDataBase64,
+                user.leftFingerISOTemplateDataByteArray, user.rightFingerISOTemplateDataByteArray
+            )
+            Log.d("DATATAG", user.toString())
+            db.userDao().insert(user)
+        }.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                Log.d("DATATAG", "Called 4")
+                D.showToastShort(this, "User updated successfully")
+                finish()
+            }, { it.printStackTrace() })
+    }
+
+    private fun update() {
+        user.name = evName.text.toString()
+        user.userId = evUserId.text.toString()
+        user.mobile = evMobile.text.toString()
+        user.pinNo = evPin.text.toString()
+        user.lineDescription = evLineDescription.text.toString()
 
 
-        if (pin.isNullOrEmpty()) {
+        if (user.pinNo.isNullOrEmpty()) {
             D.showToastShort(this, "Insert user pin")
             return
         }
-        if (userId.isNullOrEmpty()) {
+        if (user.userId.isNullOrEmpty()) {
             D.showToastShort(this, "Insert user id")
             return
         }
-        if (desc.isNullOrEmpty()) {
+        if (user.lineDescription.isNullOrEmpty()) {
             D.showToastShort(this, "Insert user line description")
             return
         }
-        if (name.isNullOrEmpty()) {
+        if (user.name.isNullOrEmpty()) {
             D.showToastShort(this, "Insert name")
             return
         }
-        if (mobileNo.isNullOrEmpty()) {
+        if (user.mobile.isNullOrEmpty()) {
             D.showToastShort(this, "Insert mobile no")
             return
         }
 
-//        if (leftFingerFingerImageDataInStr.isNullOrEmpty()) {
+//        if (user.leftFingerDataBase64.isNullOrEmpty()) {
 //            D.showToastShort(this, "Left finger data is missing")
 //            return
 //        }
-//        if (rightFingerFingerImageDataInStr.isNullOrEmpty()) {
+//        if (user.rightFingerDataBase64.isNullOrEmpty()) {
 //            D.showToastShort(this, "Right finger data is missing")
 //            return
 //        }
 
-        userImage?.let {
-            copyFileToDestination()
-        }
+        if (image != null) {
+            Observable.fromCallable {
+                val calender = Calendar.getInstance()
 
-        Thread {
-            val user = User(
-                0, userId, name,mobileNo, typeId, desgId, deptId, secId, shiftId, pin,
-                userImageFilePathTo, desc, leftFingerFingerImageDataInStr ?: "",
-                rightFingerFingerImageDataInStr ?: "",
-                leftFingerISOTemplateDataInStr ?: "",
-                rightFingerISOTemplateDataInStr ?: "",
+                val src = File(image!!.path)
+                val destination = File(
+                    getExternalFilesDir(
+                        Environment.DIRECTORY_PICTURES
+                    ), "${calender.timeInMillis}${image?.name}"
+                )
 
-                leftFingerFingerImageDataInByteArray ?: byteArrayOf(),
-                rightFingerFingerImageDataInByteArray ?: byteArrayOf()
-            )
-            db.userDao().insert(user)
-        }.start()
+                U.copyOrMoveFile(src, destination, true)
 
-        D.showToastShort(this, "User saved successfully")
-        finish()
+                destination
+            }.subscribeOn(Schedulers.io())
+                .subscribe({ destinationFile ->
+                    Log.d("DATATAG", "Called 1")
+
+                    U.deleteAFile(user.imagePath)
+                    Log.d("DATATAG", "Called 2")
+                    user.imagePath = destinationFile.absolutePath
+                    Log.d("DATATAG", user.imagePath)
+                    startUpdating()
+                }, { it.printStackTrace() })
+        } else startUpdating()
+
+
     }
 
     private fun setDesignation() {
@@ -249,7 +307,16 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     this,
                     android.R.layout.simple_spinner_dropdown_item, desgs
                 )
+
                 spinUserDesignation.adapter = adapter
+
+                (desgs.indices).forEach { i ->
+                    val d = desgs[i]
+
+                    if (d.id == user.designationId) {
+                        spinUserDesignation.setSelection(i)
+                    }
+                }
 
                 spinUserDesignation.onItemSelectedListener =
                     object : AdapterView.OnItemSelectedListener {
@@ -263,7 +330,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                             position: Int,
                             id: Long
                         ) {
-                            desgId = desgs[position].id
+                            user.designationId = desgs[position].id
                         }
                     }
             } else spinUserDesignation.visibility = View.GONE
@@ -282,6 +349,14 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                 )
                 spinSection.adapter = adapter
 
+                (secs.indices).forEach { i ->
+                    val d = secs[i]
+
+                    if (d.id == user.sectionId) {
+                        spinSection.setSelection(i)
+                    }
+                }
+
                 spinSection.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onNothingSelected(parent: AdapterView<*>?) {
 
@@ -293,7 +368,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                         position: Int,
                         id: Long
                     ) {
-                        secId = secs[position].id
+                        user.sectionId = secs[position].id
                     }
                 }
             } else spinSection.visibility = View.GONE
@@ -312,6 +387,14 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                 )
                 spinUserDepartment.adapter = adapter
 
+                (depts.indices).forEach { i ->
+                    val d = depts[i]
+
+                    if (d.id == user.departmentId) {
+                        spinUserDepartment.setSelection(i)
+                    }
+                }
+
                 spinUserDepartment.onItemSelectedListener =
                     object : AdapterView.OnItemSelectedListener {
                         override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -324,7 +407,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                             position: Int,
                             id: Long
                         ) {
-                            deptId = depts[position].id
+                            user.departmentId = depts[position].id
                         }
                     }
             } else spinUserDepartment.visibility = View.GONE
@@ -343,6 +426,14 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                 )
                 spinUserShift.adapter = adapter
 
+                (shifts.indices).forEach { i ->
+                    val d = shifts[i]
+
+                    if (d.id == user.shiftId) {
+                        spinUserShift.setSelection(i)
+                    }
+                }
+
                 spinUserShift.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onNothingSelected(parent: AdapterView<*>?) {
 
@@ -354,7 +445,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                         position: Int,
                         id: Long
                     ) {
-                        shiftId = shifts[position].id
+                        user.shiftId = shifts[position].id
                     }
                 }
             } else spinUserShift.visibility = View.GONE
@@ -373,6 +464,14 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                 )
                 spinUserType.adapter = adapter
 
+                (types.indices).forEach { i ->
+                    val d = types[i]
+
+                    if (d.id == user.userTypeId) {
+                        spinUserType.setSelection(i)
+                    }
+                }
+
                 spinUserType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                     override fun onNothingSelected(parent: AdapterView<*>?) {
 
@@ -384,13 +483,12 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                         position: Int,
                         id: Long
                     ) {
-                        typeId = types[position].id
+                        user.userTypeId = types[position].id
                     }
                 }
             } else spinUserType.visibility = View.GONE
         })
     }
-
 
     private fun showSuccessLog(key: String) {
         try {
@@ -448,6 +546,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
     }
 
     private var mLastDttTime = 0L
+
     override fun OnDeviceDetached() {
         try {
 
@@ -580,26 +679,13 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                         fingerData.FingerImage(), 0,
                         fingerData.FingerImage().size
                     )
-                    this@AddUserActivity.runOnUiThread { ivLeftFinger.setImageBitmap(bitmap) }
-
-/*                    Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
-                    Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
-
-                    val a =  Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT)
-                    val b = Base64.decode(a, Base64.DEFAULT)
-
-                    if (fingerData.FingerImage()!=null && fingerData.FingerImage()!!.contentEquals(b)) {
-                        Log.d("DATATAG", "match")
-                    }
-                    val bitmap = BitmapFactory.decodeByteArray(b, 0, b.size)
-                    this@AddUserActivity.runOnUiThread { ivLeftFinger.setImageBitmap(bitmap) }*/
+                    this@UserEditActivity.runOnUiThread { ivLeftFinger.setImageBitmap(bitmap) }
 
                     setFingerPrintDeviceTextOnUIThread("Capture Success")
                     tvLeftFingerCaptureMsg.text = "Captured"
                     fingerLog(fingerData)
                     setLeftFingerData(fingerData)
 
-                    Log.d("DATATAG", Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT))
                 }
             } catch (ex: Exception) {
                 setFingerPrintDeviceTextOnUIThread("Error")
@@ -626,7 +712,7 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                         fingerData.FingerImage(), 0,
                         fingerData.FingerImage().size
                     )
-                    this@AddUserActivity.runOnUiThread { ivRightFinger.setImageBitmap(bitmap) }
+                    this@UserEditActivity.runOnUiThread { ivRightFinger.setImageBitmap(bitmap) }
 
                     //Log.e("RawImage", Base64.encodeToString(fingerData.RawData(), Base64.DEFAULT));
                     //                        Log.e("FingerISOTemplate", Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT));
@@ -662,7 +748,8 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
     }
 
     private fun setLeftFingerData(
-        fingerData: FingerData) {
+        fingerData: FingerData
+    ) {
         try {
             if (scannerAction == ScannerAction.Capture) {
                 leftEnrollTemplate = ByteArray(fingerData.ISOTemplate().size)
@@ -689,9 +776,11 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     )
                 } else {
                     if (ret >= 96) {
-                        leftFingerFingerImageDataInByteArray = fingerData.ISOTemplate()
-                        leftFingerFingerImageDataInStr = Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT)
-                        leftFingerISOTemplateDataInStr = Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT)
+                        user.leftFingerISOTemplateDataByteArray = fingerData.ISOTemplate()
+                        user.leftFingerDataBase64 =
+                            Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT)
+                        user.leftFingerISOTemplateDataBase64 =
+                            Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT)
                         tvLeftFingerVerifyMsg.text = "Finger matched"
                     } else {
                         tvLeftFingerVerifyMsg.text = "Finger not matched"
@@ -702,17 +791,12 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
             e.printStackTrace()
         }
 
-        /*try {
-            WriteFile("Raw.raw", fingerData.RawData())
-            WriteFile("Bitmap.bmp", fingerData.FingerImage())
-            WriteFile("ISOTemplate.iso", fingerData.ISOTemplate())
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }*/
 
     }
+
     private fun setRightFingerData(
-        fingerData: FingerData) {
+        fingerData: FingerData
+    ) {
         try {
             if (scannerAction == ScannerAction.Capture) {
                 rightEnrollTemplate = ByteArray(fingerData.ISOTemplate().size)
@@ -738,9 +822,11 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
                     )
                 } else {
                     if (ret >= 96) {
-                        rightFingerFingerImageDataInByteArray = fingerData.ISOTemplate()
-                        rightFingerFingerImageDataInStr = Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT)
-                        rightFingerISOTemplateDataInStr = Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT)
+                        user.rightFingerISOTemplateDataByteArray = fingerData.ISOTemplate()
+                        user.rightFingerDataBase64 =
+                            Base64.encodeToString(fingerData.FingerImage(), Base64.DEFAULT)
+                        user.rightFingerISOTemplateDataBase64 =
+                            Base64.encodeToString(fingerData.ISOTemplate(), Base64.DEFAULT)
                         tvRightFingerVerifyMsg.text = "Finger matched"
                     } else {
                         tvRightFingerVerifyMsg.text = "Finger not matched"
@@ -751,14 +837,6 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
             e.printStackTrace()
         }
 
-        /*try {
-            WriteFile("Raw.raw", fingerData.RawData())
-            WriteFile("Bitmap.bmp", fingerData.FingerImage())
-            WriteFile("ISOTemplate.iso", fingerData.ISOTemplate())
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }*/
 
     }
-
 }
