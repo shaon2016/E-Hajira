@@ -1,5 +1,6 @@
 package com.copotronic.stu.activities
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
@@ -23,6 +24,13 @@ import com.copotronic.stu.model.Notice
 import com.copotronic.stu.model.UserType
 import com.esafirm.imagepicker.features.ImagePicker
 import com.esafirm.imagepicker.model.Image
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.DexterBuilder
+import com.karumi.dexter.MultiplePermissionsReport
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import com.karumi.dexter.listener.single.PermissionListener
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -57,14 +65,35 @@ class AddNoticeActivity : AppCompatActivity() {
         setUserTypes()
 
         btnAddImageNotice.setOnClickListener {
-            ImagePicker.create(this)
-                .toolbarFolderTitle(getString(R.string.folder)) // folder selection title
-                .toolbarImageTitle(getString(R.string.tap_to_select)) // image selection title
-                .toolbarArrowColor(Color.BLACK)
-                .limit(1)
-                .showCamera(true)
-                .toolbarArrowColor(ContextCompat.getColor(this, R.color.white))
-                .start(REQUEST_GALLERY_IMAGE)
+            Dexter.withActivity(this)
+                .withPermissions(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                )
+                .withListener(object : MultiplePermissionsListener {
+                    override fun onPermissionsChecked(report: MultiplePermissionsReport) {
+                        if (report.areAllPermissionsGranted()) {
+                            ImagePicker.create(this@AddNoticeActivity)
+                                .toolbarFolderTitle(getString(R.string.folder)) // folder selection title
+                                .toolbarImageTitle(getString(R.string.tap_to_select)) // image selection title
+                                .toolbarArrowColor(Color.BLACK)
+                                .limit(1)
+                                .showCamera(true)
+                                .toolbarArrowColor(ContextCompat.getColor(this@AddNoticeActivity, R.color.white))
+                                .start(REQUEST_GALLERY_IMAGE)
+                        }else
+                            D.showToastLong(this@AddNoticeActivity, "Plz Grant the permissions")
+                    }
+
+                    override fun onPermissionRationaleShouldBeShown(
+                        permissions: MutableList<PermissionRequest>?,
+                        token: PermissionToken?
+                    ) {
+                        token?.continuePermissionRequest()
+                    }
+                }).check()
+
+
         }
 
         btnAddDate.setOnClickListener {
@@ -98,6 +127,12 @@ class AddNoticeActivity : AppCompatActivity() {
     }
 
     private fun save() {
+        if (noticeDate.isEmpty()) {
+            D.showToastShort(this, "Please add date")
+            return
+        }
+
+
         noticeText = evNotice.text.toString()
         val notice = Notice(0, image?.path ?: "", typeId, noticeText, noticeDate)
 

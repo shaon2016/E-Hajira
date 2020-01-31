@@ -1,5 +1,6 @@
 package com.copotronic.stu.activities
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -24,6 +25,11 @@ import com.copotronic.stu.helper.U
 import com.copotronic.stu.model.*
 import com.esafirm.imagepicker.features.ImagePicker
 import com.esafirm.imagepicker.model.Image
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.MultiplePermissionsReport
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.mantra.mfs100.FingerData
 import com.mantra.mfs100.MFS100
 import com.mantra.mfs100.MFS100Event
@@ -120,14 +126,36 @@ class AddUserActivity : AppCompatActivity(), MFS100Event {
         }
 
         btnAddUserImage.setOnClickListener {
-            ImagePicker.create(this)
-                .toolbarFolderTitle(getString(R.string.folder)) // folder selection title
-                .toolbarImageTitle(getString(R.string.tap_to_select)) // image selection title
-                .toolbarArrowColor(Color.BLACK)
-                .limit(1)
-                .showCamera(true)
-                .toolbarArrowColor(ContextCompat.getColor(this, R.color.white))
-                .start(REQUEST_GALLERY_IMAGE)
+            Dexter.withActivity(this)
+                .withPermissions(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                )
+                .withListener(object : MultiplePermissionsListener {
+                    override fun onPermissionsChecked(report: MultiplePermissionsReport) {
+                        if (report.areAllPermissionsGranted()) {
+                            ImagePicker.create(this@AddUserActivity)
+                                .toolbarFolderTitle(getString(R.string.folder)) // folder selection title
+                                .toolbarImageTitle(getString(R.string.tap_to_select)) // image selection title
+                                .toolbarArrowColor(Color.BLACK)
+                                .limit(1)
+                                .showCamera(true)
+                                .toolbarArrowColor(ContextCompat.getColor(this@AddUserActivity, R.color.white))
+                                .start(REQUEST_GALLERY_IMAGE)   }else
+                            D.showToastLong(this@AddUserActivity, "Plz Grant the permissions")
+                    }
+
+                    override fun onPermissionRationaleShouldBeShown(
+                        permissions: MutableList<PermissionRequest>?,
+                        token: PermissionToken?
+                    ) {
+                        token?.continuePermissionRequest()
+                    }
+                }).check()
+
+
+
+
         }
 
         btnVerifyCaptureLeftFinger.setOnClickListener {

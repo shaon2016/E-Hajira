@@ -38,8 +38,6 @@ class MainActivity : AppCompatActivity(), MFS100Event {
     private var rightCapFingerData: FingerData? = null
     private var scannerAction = ScannerAction.Capture
 
-    private var fingerTemplate: ByteArray? = null
-
     private lateinit var mfs100: MFS100
     private var isCaptureRunning = false
 
@@ -63,19 +61,26 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         Observable.fromCallable {
             val todayDate = U.reformatDate(Calendar.getInstance().time, "yyyy-MM-dd")
             db.noticeDao().noticeByDate(todayDate)
-        }.observeOn(Schedulers.io())
+        }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ notice ->
                 if (notice != null) {
                     tvNotice.text = notice.noticeText
-                    Observable.fromCallable {
-                        val myBitmap = BitmapFactory.decodeFile(notice.imageFilePath)
-                        myBitmap
-                    }.observeOn(Schedulers.computation())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { myBitmap ->
-                            ivNotice.setImageBitmap(myBitmap)
-                        }
+                    if (notice.imageFilePath.isNotEmpty())
+                        Observable.fromCallable {
+                            val myBitmap = BitmapFactory.decodeFile(notice.imageFilePath)
+                            myBitmap
+                        }.subscribeOn(Schedulers.computation())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe({ myBitmap ->
+                                ivNotice.setImageBitmap(myBitmap)
+                            }, {
+                                tvNotice.text = " No Notice to Show"
+                                ivNotice.visibility = View.GONE
+
+                                it.printStackTrace()
+                            })
+                    else ivNotice.visibility = View.GONE
                 } else {
                     tvNotice.text = " No Notice to Show"
                     ivNotice.visibility = View.GONE
@@ -93,7 +98,6 @@ class MainActivity : AppCompatActivity(), MFS100Event {
             scannerAction = ScannerAction.Capture
             startSyncFingerCapture()
         }
-
 //        btnSubmit.setOnClickListener {
 //            validateUser()
 //        }

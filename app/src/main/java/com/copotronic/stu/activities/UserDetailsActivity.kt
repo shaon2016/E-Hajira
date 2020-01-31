@@ -33,7 +33,6 @@ class UserDetailsActivity : AppCompatActivity() {
 
 
         Observable.fromCallable {
-            //            user = db.userDao().user(2)
             val userImage = BitmapFactory.decodeFile(user!!.imagePath)
             userImage
         }.subscribeOn(Schedulers.computation())
@@ -74,7 +73,7 @@ class UserDetailsActivity : AppCompatActivity() {
     private fun setNotice() {
         Observable.fromCallable {
             db.noticeDao().noticeByUserTypeId(user!!.userTypeId)
-        }.observeOn(Schedulers.io())
+        }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ notice ->
                 if (notice != null && user!!.userTypeId > 0) {
@@ -82,11 +81,11 @@ class UserDetailsActivity : AppCompatActivity() {
                     Observable.fromCallable {
                         val myBitmap = BitmapFactory.decodeFile(notice.imageFilePath)
                         myBitmap
-                    }.observeOn(Schedulers.computation())
+                    }.subscribeOn(Schedulers.computation())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe { myBitmap ->
+                        .subscribe ({ myBitmap ->
                             ivNotice.setImageBitmap(myBitmap)
-                        }
+                        }, {it.printStackTrace()})
                 } else {
                     tvNotice.text = " No Notice to Show"
                     ivNotice.visibility = View.GONE
