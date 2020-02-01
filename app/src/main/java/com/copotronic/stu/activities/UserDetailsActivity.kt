@@ -42,27 +42,34 @@ class UserDetailsActivity : AppCompatActivity() {
             }, { it.printStackTrace() })
 
 
-        Observable.fromCallable {
-            val ut = db.userTypeDao().utById(user!!.userTypeId)
-            ut
-        }.subscribeOn(Schedulers.computation())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ ut ->
-                tvAssignedFor.text = "Assigned for: ${ut.name}"
-
-            }, { it.printStackTrace() })
+//        Observable.fromCallable {
+//            val ut = db.userTypeDao().utById(user!!.userTypeId)
+//            ut
+//        }.subscribeOn(Schedulers.computation())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe({ ut ->
+//                tvAssignedFor.text = "Assigned for: ${ut.name}"
+//
+//            }, { it.printStackTrace() })
 
 
         if (!user!!.name.isNullOrEmpty())
             tvName.text = "Name: ${user!!.name}"
         else tvName.text = "No name"
-        if (!user!!.mobile.isNullOrEmpty())
-            tvMobile.text = "Mobile: ${user!!.mobile}"
-        else tvMobile.text = "No mobile number"
-        if (!user!!.lineDescription.isNullOrEmpty())
-            tvDesc.text = "Description: ${user!!.lineDescription}"
-        else tvDesc.text = ""
 
+        if (!user!!.name.isNullOrEmpty())
+            tvUserId.text = "ID- ${user!!.userId}"
+        else tvUserId.visibility = View.GONE
+
+        if (user!!.designationId > 0)
+            Observable.fromCallable {
+                db.designationDao().desgById(user!!.designationId)
+            }.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    tvDesignation.text = "Designation: ${it.name}"
+                }, { it.printStackTrace() })
+        else tvDesignation.visibility = View.GONE
 
         setDateTime()
 
@@ -83,9 +90,9 @@ class UserDetailsActivity : AppCompatActivity() {
                         myBitmap
                     }.subscribeOn(Schedulers.computation())
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe ({ myBitmap ->
+                        .subscribe({ myBitmap ->
                             ivNotice.setImageBitmap(myBitmap)
-                        }, {it.printStackTrace()})
+                        }, { it.printStackTrace() })
                 } else {
                     tvNotice.text = " No Notice to Show"
                     ivNotice.visibility = View.GONE
@@ -98,7 +105,7 @@ class UserDetailsActivity : AppCompatActivity() {
     }
 
     private fun setDateTime() {
-        tvDate.text = "${U.todayDate}"
-        tvTime.text = "${U.nowTime}"
+        tvDate.text = "Date: ${U.todayDate}"
+        tvTime.text = "Time: ${U.nowTime}"
     }
 }

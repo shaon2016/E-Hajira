@@ -16,5 +16,8 @@ interface DesignationDao {
     @Query("select * from designation")
     fun all() : LiveData<List<Designation>>
 
+    @Query("select * from designation where id = :id")
+    fun desgById(id : Int) : Designation
+
 
 }
