@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import com.bumptech.glide.Glide
 import com.copotronic.stu.R
 import com.copotronic.stu.helper.U
 import kotlinx.android.synthetic.main.activity_splash.*
@@ -14,19 +15,25 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
+        Glide.with(this)
+            .asGif()
+            .load(R.drawable.splash)
+            .into(ivSplash)
+
+
         Handler().postDelayed({
-            setDateTime()
             goToDesiredPage()
             finish()
-        }, 2000)
+        }, 5000)
+
+
+
+
     }
 
     private fun goToDesiredPage() {
         startActivity(Intent(this, MainActivity::class.java))
     }
 
-    private fun setDateTime() {
-        tvDate.text = "${U.todayDate}"
-        tvTime.text = "${U.nowTime}"
-    }
+
 }
