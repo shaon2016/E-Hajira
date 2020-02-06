@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.SystemClock
 import android.util.Base64
 import android.util.Log
@@ -12,6 +13,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import com.bumptech.glide.Glide
 import com.copotronic.stu.R
 import com.copotronic.stu.ScannerAction
 import com.copotronic.stu.data.AppDb
@@ -25,7 +27,13 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.ivNotice
+import kotlinx.android.synthetic.main.activity_main.tvDate
+import kotlinx.android.synthetic.main.activity_main.tvNotice
+import kotlinx.android.synthetic.main.activity_main.tvTime
+import kotlinx.android.synthetic.main.activity_student_details.*
 import kotlinx.android.synthetic.main.toolbar.*
+import java.time.LocalDate
 import java.util.*
 
 class MainActivity : AppCompatActivity(), MFS100Event {
@@ -46,6 +54,8 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         setContentView(R.layout.activity_main)
 
         setSupportActionBar(toolbar)
+        supportActionBar?.title = ""
+
 
         db = AppDb.getInstance(this)!!
 
@@ -54,10 +64,35 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         handleBtn()
 
         setNotice()
+
+        setDateTime()
+
+        handleGifImages()
+    }
+
+    private fun handleGifImages() {
+
+
+        Glide.with(this)
+            .asGif()
+            .load(R.drawable.finger_on)
+            .into(ivFingerOn)
+
+        Glide.with(this)
+            .asGif()
+            .load(R.drawable.touch_korun)
+            .into(ivTouchKorun)
+    }
+
+    private fun setDateTime() {
+        tvDate.text = "Date: ${U.todayDate}"
+        tvTime.text = "Time: ${U.nowTime}"
     }
 
     @SuppressLint("CheckResult")
     private fun setNotice() {
+        showCountDownMujibBorso()
+
         Observable.fromCallable {
             val todayDate = U.reformatDate(Calendar.getInstance().time, "yyyy-MM-dd")
             db.noticeDao().noticeByDate(todayDate)
@@ -92,20 +127,41 @@ class MainActivity : AppCompatActivity(), MFS100Event {
             }, {})
     }
 
+    private fun showCountDownMujibBorso() {
+        val futureMinDate = U.parseDateSimple("2020-03-17")
+
+        // Here futureMinDate.time Returns the number of milliseconds since January 1, 1970, 00:00:00 GM
+        // So we need to subtract the millis from current millis to get actual millis
+        object : CountDownTimer(futureMinDate.time - System.currentTimeMillis(), 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                val sec = (millisUntilFinished / 1000) % 60
+                val min = (millisUntilFinished / (1000 * 60)) % 60
+                val hr = (millisUntilFinished / (1000 * 60 * 60)) % 24
+                val day = ((millisUntilFinished / (1000 * 60 * 60)) / 24).toInt()
+                val formattedTimeStr = if (day > 1) "$day days $hr : $min : $sec"
+                else "$day day $hr : $min : $sec"
+                tvMujibCountDownTime.text = formattedTimeStr
+            }
+
+            override fun onFinish() {
+                tvMujibCountDownTime.text = "Done!"
+            }
+        }.start()
+    }
+
     private fun handleBtn() {
-        btnScanFinger.setOnClickListener {
+        ivFingerOn.setOnClickListener {
 
             scannerAction = ScannerAction.Capture
             startSyncFingerCapture()
+
+            ivFingerDin.visibility = View.VISIBLE
+            Glide.with(this)
+                .asGif()
+                .load(R.drawable.finger_din)
+                .into(ivFingerDin)
+
         }
-//        btnSubmit.setOnClickListener {
-//            validateUser()
-//        }
-    }
-
-    private fun validateUser() {
-
-
     }
 
     private fun startSyncFingerCapture() {

@@ -6,14 +6,5 @@
     android:layout_height="?attr/actionBarSize"
     android:background="@color/colorPrimary">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
-        <ImageView
-            android:layout_gravity="center"
-            android:src="@mipmap/ic_launcher"
-            android:layout_width="32dp"
-            android:layout_height="32dp"/>
-    </FrameLayout>
 </androidx.appcompat.widget.Toolbar>
