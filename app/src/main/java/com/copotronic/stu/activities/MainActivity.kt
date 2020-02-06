@@ -13,6 +13,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.copotronic.stu.R
 import com.copotronic.stu.ScannerAction
@@ -72,7 +73,6 @@ class MainActivity : AppCompatActivity(), MFS100Event {
 
     private fun handleGifImages() {
 
-
         Glide.with(this)
             .asGif()
             .load(R.drawable.finger_on)
@@ -89,6 +89,9 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         tvTime.text = "Time: ${U.nowTime}"
     }
 
+    /**
+     * Showing notice according to date
+     * */
     @SuppressLint("CheckResult")
     private fun setNotice() {
         showCountDownMujibBorso()
@@ -110,18 +113,18 @@ class MainActivity : AppCompatActivity(), MFS100Event {
                             .subscribe({ myBitmap ->
                                 ivNotice.setImageBitmap(myBitmap)
                             }, {
-                                tvNotice.text = " No Notice to Show"
+                                tvNotice.text = ""
                                 ivNotice.visibility = View.GONE
 
                                 it.printStackTrace()
                             })
                     else ivNotice.visibility = View.GONE
                 } else {
-                    tvNotice.text = " No Notice to Show"
+                    tvNotice.text = ""
                     ivNotice.visibility = View.GONE
                 }
             }, {
-                tvNotice.text = " No Notice to Show"
+                tvNotice.text = ""
                 ivNotice.visibility = View.GONE
                 it.printStackTrace()
             }, {})
@@ -129,6 +132,7 @@ class MainActivity : AppCompatActivity(), MFS100Event {
 
     private fun showCountDownMujibBorso() {
         val futureMinDate = U.parseDateSimple("2020-03-17")
+        tvMujibCountDownTime.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.green))
 
         // Here futureMinDate.time Returns the number of milliseconds since January 1, 1970, 00:00:00 GM
         // So we need to subtract the millis from current millis to get actual millis
@@ -145,6 +149,7 @@ class MainActivity : AppCompatActivity(), MFS100Event {
 
             override fun onFinish() {
                 tvMujibCountDownTime.text = "Done!"
+                tvMujibCountDownTime.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.red_soothing))
             }
         }.start()
     }
@@ -156,10 +161,13 @@ class MainActivity : AppCompatActivity(), MFS100Event {
             startSyncFingerCapture()
 
             ivFingerDin.visibility = View.VISIBLE
+
             Glide.with(this)
                 .asGif()
                 .load(R.drawable.finger_din)
                 .into(ivFingerDin)
+
+            ivTouchKorun.visibility = View.GONE
 
         }
     }

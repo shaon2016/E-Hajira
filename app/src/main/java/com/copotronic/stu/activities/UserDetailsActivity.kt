@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import com.copotronic.stu.R
@@ -74,6 +75,11 @@ class UserDetailsActivity : AppCompatActivity() {
         setDateTime()
 
         setNotice()
+
+        // After 5 seconds finish this page
+        Handler().postDelayed({
+            finish()
+        }, 5000)
     }
 
     @SuppressLint("CheckResult")
@@ -84,23 +90,25 @@ class UserDetailsActivity : AppCompatActivity() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ notice ->
                 if (notice != null && user!!.userTypeId > 0) {
-                    tvNotice.text = notice.noticeText
+                    if (notice.noticeText.isNotEmpty()) {
+                        tvNotice.visibility = View.VISIBLE
+                        tvNotice.text = notice.noticeText
+                    }
                     Observable.fromCallable {
                         val myBitmap = BitmapFactory.decodeFile(notice.imageFilePath)
                         myBitmap
                     }.subscribeOn(Schedulers.computation())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({ myBitmap ->
-                            ivNotice.visibility = View.VISIBLE
                             ivNotice.setImageBitmap(myBitmap)
                         }, { it.printStackTrace() })
                 } else {
-                    tvNotice.text = " No Notice to Show"
-                    ivNotice.visibility = View.GONE
+                    tvNotice.text = ""
+                   // ivNotice.visibility = View.GONE
                 }
             }, {
-                tvNotice.text = " No Notice to Show"
-                ivNotice.visibility = View.GONE
+                tvNotice.text = ""
+               // ivNotice.visibility = View.GONE
                 it.printStackTrace()
             }, {})
     }

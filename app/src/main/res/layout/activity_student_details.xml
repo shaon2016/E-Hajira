@@ -42,16 +42,17 @@
             </LinearLayout>
 
             <ImageView
+
+                android:layout_marginTop="8dp"
                 android:id="@+id/ivNotice"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_gravity="center_horizontal"
+                android:layout_height="400dp"
                 android:padding="16dp"
-                android:scaleType="fitXY"
-                android:visibility="gone"
-                tools:background="@drawable/beats" />
+                android:scaleType="centerCrop"
+                android:background="@drawable/notice" />
 
             <TextView
+                android:visibility="gone"
                 android:id="@+id/tvNotice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -65,9 +66,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Verified"
-                android:textColor="@android:color/holo_red_light"
-                android:textSize="24sp" />
+                android:padding="8dp"
+                android:textStyle="bold"
+                android:text="Finger Verified"
+                android:textColor="@android:color/holo_green_dark"
+                android:textSize="32sp" />
 
 
             <androidx.constraintlayout.widget.ConstraintLayout
