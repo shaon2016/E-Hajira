@@ -91,6 +91,7 @@ class UserDetailsActivity : AppCompatActivity() {
                     }.subscribeOn(Schedulers.computation())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe({ myBitmap ->
+                            ivNotice.visibility = View.VISIBLE
                             ivNotice.setImageBitmap(myBitmap)
                         }, { it.printStackTrace() })
                 } else {
