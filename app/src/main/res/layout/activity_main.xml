@@ -19,8 +19,9 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:layout_marginTop="16dp"
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="140dp"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -42,10 +43,11 @@
 
 
             <ImageView
+                android:layout_marginTop="16dp"
                 android:background="@color/white"
                 android:id="@+id/ivMujib"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="300dp"
                 android:layout_gravity="center_horizontal"
                 android:padding="16dp"
                 android:src="@drawable/mujib_borso" />
@@ -87,7 +89,7 @@
                     android:layout_marginStart="32dp"
                     android:layout_weight="1"
                     android:text="10:30AM"
-                    android:textSize="24sp" />
+                    android:textSize="32sp" />
 
                 <TextView
                     android:id="@+id/tvDate"
@@ -97,7 +99,7 @@
                     android:layout_weight="1"
                     android:gravity="end"
                     android:text="10:30AM"
-                    android:textSize="24sp" />
+                    android:textSize="32sp" />
             </LinearLayout>
 
             <TextView
@@ -111,6 +113,7 @@
                 android:visibility="gone" />
 
             <LinearLayout
+                android:layout_marginTop="42dp"
                 android:layout_gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"

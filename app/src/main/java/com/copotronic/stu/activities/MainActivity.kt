@@ -142,7 +142,7 @@ class MainActivity : AppCompatActivity(), MFS100Event {
                 val min = (millisUntilFinished / (1000 * 60)) % 60
                 val hr = (millisUntilFinished / (1000 * 60 * 60)) % 24
                 val day = ((millisUntilFinished / (1000 * 60 * 60)) / 24).toInt()
-                val formattedTimeStr = if (day > 1) "$day days $hr : $min : $sec"
+                val formattedTimeStr = if (day > 1) "$day Days $hr : $min : $sec"
                 else "$day day $hr : $min : $sec"
                 tvMujibCountDownTime.text = formattedTimeStr
             }

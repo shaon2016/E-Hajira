@@ -104,11 +104,11 @@ class UserDetailsActivity : AppCompatActivity() {
                         }, { it.printStackTrace() })
                 } else {
                     tvNotice.text = ""
-                   // ivNotice.visibility = View.GONE
+                    ivNotice.visibility = View.GONE
                 }
             }, {
                 tvNotice.text = ""
-               // ivNotice.visibility = View.GONE
+                ivNotice.visibility = View.GONE
                 it.printStackTrace()
             }, {})
     }
