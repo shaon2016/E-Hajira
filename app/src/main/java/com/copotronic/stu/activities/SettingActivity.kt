@@ -32,7 +32,7 @@ class SettingActivity : AppCompatActivity() {
             startActivity(Intent(this, AddUserActivity::class.java))
         }
         tvNoticeManagement.setOnClickListener {
-            startActivity(Intent(this, AddNoticeActivity::class.java))
+            startActivity(Intent(this, ListOfNoticeActivity::class.java))
         }
 
         tvChangePassword.setOnClickListener {

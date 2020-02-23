@@ -1,5 +1,6 @@
 package com.copotronic.stu.data.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -16,4 +17,7 @@ interface NoticeDao {
 
     @Query("select * from notice where user_type_id = :typeId")
     fun noticeByUserTypeId(typeId: Int): Notice
+
+    @Query("select * from notice")
+    fun all() : LiveData<List<Notice>>
 }
