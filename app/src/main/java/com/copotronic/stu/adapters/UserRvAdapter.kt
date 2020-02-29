@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,9 +13,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.copotronic.stu.R
-import com.copotronic.stu.activities.AddUserActivity
-import com.copotronic.stu.activities.UserDetailsActivity
-import com.copotronic.stu.activities.UserEditActivity
+import com.copotronic.stu.activities.user.UserDetailsActivity
+import com.copotronic.stu.activities.user.UserEditActivity
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.model.User
 import io.reactivex.Observable

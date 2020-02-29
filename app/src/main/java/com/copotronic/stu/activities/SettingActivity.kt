@@ -9,6 +9,7 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
 import com.copotronic.stu.R
+import com.copotronic.stu.activities.user.UsersActivity
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.helper.D
 import kotlinx.android.synthetic.main.activity_setting.*

@@ -235,7 +235,7 @@ class InstituteSettingActivity : AppCompatActivity() {
                 val userTypeStr = charSequence.toString()
                 if (userTypeStr.isNotEmpty()) {
                     Thread {
-                        val ut = UserType(0, userTypeStr)
+                        val ut = UserType( userTypeStr)
                         db.userTypeDao().insert(ut)
                     }.start()
                 }

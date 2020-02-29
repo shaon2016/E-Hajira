@@ -15,6 +15,7 @@ interface NoticeDao {
     @Query("select * from notice where user_type_id = :typeId")
     fun noticeByUserTypeId(typeId: Int): Notice
 
+
     @Query("select * from notice")
     fun all() : LiveData<List<Notice>>
 

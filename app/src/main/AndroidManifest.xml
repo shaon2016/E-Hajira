@@ -16,12 +16,12 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".activities.notice.NoticeEditActivity"></activity>
         <activity android:name=".activities.ListOfNoticeActivity" />
-        <activity android:name=".activities.UserEditActivity" />
+        <activity android:name=".activities.user.UserEditActivity" />
         <activity
             android:name=".activities.notice.AddNoticeActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.UsersActivity"
+            android:name=".activities.user.UsersActivity"
             android:exported="true" />
         <activity
             android:name=".activities.AddUserActivity"
@@ -34,7 +34,7 @@
             android:exported="true" />
         <activity android:name=".activities.LoginActivity" />
         <activity
-            android:name=".activities.UserDetailsActivity"
+            android:name=".activities.user.UserDetailsActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" />
         <activity

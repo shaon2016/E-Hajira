@@ -5,9 +5,13 @@ import androidx.room.PrimaryKey
 
 @Entity
 
-data class UserType( @PrimaryKey(autoGenerate = true)
-                     val id: Int,
-                     var name: String){
+data class UserType(
+    var name: String, @PrimaryKey(autoGenerate = true)
+    val id: Int = 0
+
+) {
 
     override fun toString() = name
+
+
 }

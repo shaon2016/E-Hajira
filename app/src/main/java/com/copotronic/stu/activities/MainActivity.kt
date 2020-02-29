@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.copotronic.stu.R
 import com.copotronic.stu.ScannerAction
+import com.copotronic.stu.activities.user.UserDetailsActivity
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.helper.D
 import com.copotronic.stu.helper.U
@@ -32,9 +33,7 @@ import kotlinx.android.synthetic.main.activity_main.ivNotice
 import kotlinx.android.synthetic.main.activity_main.tvDate
 import kotlinx.android.synthetic.main.activity_main.tvNotice
 import kotlinx.android.synthetic.main.activity_main.tvTime
-import kotlinx.android.synthetic.main.activity_student_details.*
 import kotlinx.android.synthetic.main.toolbar.*
-import java.time.LocalDate
 import java.util.*
 
 class MainActivity : AppCompatActivity(), MFS100Event {
@@ -97,8 +96,9 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         showCountDownMujibBorso()
 
         Observable.fromCallable {
-            val todayDate = U.reformatDate(Calendar.getInstance().time, "yyyy-MM-dd")
-            db.noticeDao().noticeByDate(todayDate)
+           // val todayDate = U.reformatDate(Calendar.getInstance().time, "yyyy-MM-dd")
+            // home type id = 1
+            db.noticeDao().noticeByUserTypeId(1)
         }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ notice ->

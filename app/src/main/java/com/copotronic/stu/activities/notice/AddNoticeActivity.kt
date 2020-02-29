@@ -148,7 +148,7 @@ class AddNoticeActivity : AppCompatActivity() {
     private fun setUserTypes() {
         db.userTypeDao().all().observe(this, Observer { types ->
             types as ArrayList<UserType>
-            types.add(0, UserType(0, getString(R.string.select_type)))
+            types.add(0, UserType( getString(R.string.select_type)))
 
             if (types.size > 1) {
                 val adapter = ArrayAdapter(
