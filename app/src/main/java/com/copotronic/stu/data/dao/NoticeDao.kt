@@ -1,10 +1,7 @@
 package com.copotronic.stu.data.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.copotronic.stu.model.Notice
 
 @Dao
@@ -20,4 +17,10 @@ interface NoticeDao {
 
     @Query("select * from notice")
     fun all() : LiveData<List<Notice>>
+
+    @Delete
+    fun delete(notice: Notice)
+
+    @Query("select * from notice where id = :id")
+    fun notice(id: Int) : Notice
 }

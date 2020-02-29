@@ -1,4 +1,4 @@
-package com.copotronic.stu.activities
+package com.copotronic.stu.activities.notice
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -10,12 +10,12 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import com.bumptech.glide.Glide
 import com.copotronic.stu.R
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.helper.D
@@ -25,22 +25,20 @@ import com.copotronic.stu.model.UserType
 import com.esafirm.imagepicker.features.ImagePicker
 import com.esafirm.imagepicker.model.Image
 import com.karumi.dexter.Dexter
-import com.karumi.dexter.DexterBuilder
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
-import com.karumi.dexter.listener.single.PermissionListener
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_add_notice.*
+import kotlinx.android.synthetic.main.activity_notice_edit.*
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
+class NoticeEditActivity : AppCompatActivity() {
 
-class AddNoticeActivity : AppCompatActivity() {
     private lateinit var db: AppDb
     private var typeId = 0
     /** Request code for gallery image selection for ad post*/
@@ -48,20 +46,16 @@ class AddNoticeActivity : AppCompatActivity() {
     private var image: Image? = null
     private var noticeText = ""
     private var noticeDate = ""
+    private lateinit var notice: Notice
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_notice)
+        setContentView(R.layout.activity_notice_edit)
 
-        initVar()
-        initView()
-    }
+        notice = intent?.extras?.getSerializable("notice") as Notice
 
-    private fun initVar() {
         db = AppDb.getInstance(this)!!
-    }
 
-    private fun initView() {
         setUserTypes()
 
         btnAddImageNotice.setOnClickListener {
@@ -73,16 +67,21 @@ class AddNoticeActivity : AppCompatActivity() {
                 .withListener(object : MultiplePermissionsListener {
                     override fun onPermissionsChecked(report: MultiplePermissionsReport) {
                         if (report.areAllPermissionsGranted()) {
-                            ImagePicker.create(this@AddNoticeActivity)
+                            ImagePicker.create(this@NoticeEditActivity)
                                 .toolbarFolderTitle(getString(R.string.folder)) // folder selection title
                                 .toolbarImageTitle(getString(R.string.tap_to_select)) // image selection title
                                 .toolbarArrowColor(Color.BLACK)
                                 .limit(1)
                                 .showCamera(true)
-                                .toolbarArrowColor(ContextCompat.getColor(this@AddNoticeActivity, R.color.white))
+                                .toolbarArrowColor(
+                                    ContextCompat.getColor(
+                                        this@NoticeEditActivity,
+                                        R.color.white
+                                    )
+                                )
                                 .start(REQUEST_GALLERY_IMAGE)
-                        }else
-                            D.showToastLong(this@AddNoticeActivity, "Plz Grant the permissions")
+                        } else
+                            D.showToastLong(this@NoticeEditActivity, "Plz Grant the permissions")
                     }
 
                     override fun onPermissionRationaleShouldBeShown(
@@ -100,9 +99,25 @@ class AddNoticeActivity : AppCompatActivity() {
             setDate()
         }
 
-        btnSubmit.setOnClickListener {
+        btnUpdate.setOnClickListener {
             save()
         }
+
+        setData()
+    }
+
+    private fun setData() {
+        //val dao = db.noticeDao()
+        //dao.notice(notice.id)
+
+        if (notice.imageFilePath.isNotEmpty())
+            Glide.with(this).load(notice.imageFilePath).into(ivNotice)
+
+        if (notice.noticeDate.isNotEmpty())
+            tvNoticeDate.text = notice.noticeDate
+        if (notice.noticeText.isNotEmpty())
+            evNotice.setText(notice.noticeText)
+
     }
 
     private fun setDate() {
@@ -118,7 +133,7 @@ class AddNoticeActivity : AppCompatActivity() {
                 cal.set(year, month, dayOfMonth)
 
                 noticeDate = U.reformatDate(cal.time, "yyyy-MM-dd")
-                this@AddNoticeActivity.tvNoticeDate.post {
+                this@NoticeEditActivity.tvNoticeDate.post {
                     tvNoticeDate.text = noticeDate
                 }
             },
@@ -132,9 +147,8 @@ class AddNoticeActivity : AppCompatActivity() {
             return
         }
 
-
         noticeText = evNotice.text.toString()
-        val notice = Notice(0, image?.path ?: "", typeId, noticeText, noticeDate)
+        val notice = Notice( image?.path ?: "", typeId, noticeText, noticeDate)
 
         image?.let {
             copyFileToDestination()
@@ -144,7 +158,7 @@ class AddNoticeActivity : AppCompatActivity() {
             db.noticeDao().insert(notice)
         }.start()
 
-        D.showToastShort(this, "Notice saved")
+        D.showToastShort(this, "Notice Updated")
         finish()
     }
 
@@ -218,6 +232,5 @@ class AddNoticeActivity : AppCompatActivity() {
         }.start()
 
     }
-
 
 }

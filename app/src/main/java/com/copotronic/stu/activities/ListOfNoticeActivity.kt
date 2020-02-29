@@ -6,10 +6,10 @@ import android.os.Bundle
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.copotronic.stu.R
+import com.copotronic.stu.activities.notice.AddNoticeActivity
 import com.copotronic.stu.adapters.NoticeListRvAdapter
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.model.Notice
-import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_list_of_notice.*
 
 class ListOfNoticeActivity : AppCompatActivity() {

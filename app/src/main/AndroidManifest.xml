@@ -14,10 +14,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activities.ListOfNoticeActivity"></activity>
+        <activity android:name=".activities.notice.NoticeEditActivity"></activity>
+        <activity android:name=".activities.ListOfNoticeActivity" />
         <activity android:name=".activities.UserEditActivity" />
         <activity
-            android:name=".activities.AddNoticeActivity"
+            android:name=".activities.notice.AddNoticeActivity"
             android:exported="true" />
         <activity
             android:name=".activities.UsersActivity"
