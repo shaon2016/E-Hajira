@@ -20,6 +20,14 @@
             android:orientation="vertical">
 
             <Spinner
+                android:id="@+id/spinNoticeType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:layout_marginTop="16dp" />
+
+            <Spinner
+                android:visibility="gone"
                 android:id="@+id/spinUserType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

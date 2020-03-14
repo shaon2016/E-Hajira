@@ -36,7 +36,7 @@ class SplashActivity : AppCompatActivity() {
         }, 5000)
 
 
-        setHomeUserType()
+       // setHomeUserType()
 
     }
 

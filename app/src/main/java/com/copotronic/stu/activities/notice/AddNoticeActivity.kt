@@ -39,7 +39,8 @@ import kotlin.collections.ArrayList
 
 class AddNoticeActivity : AppCompatActivity() {
     private lateinit var db: AppDb
-    private var typeId = 0
+    private var userTypeId = 0
+    private var noticeType = 0 // 0 = Home , 1 = Student
     /** Request code for gallery image selection for ad post*/
     private val REQUEST_GALLERY_IMAGE = 231
     private var image: Image? = null
@@ -59,7 +60,7 @@ class AddNoticeActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        setUserTypes()
+        setNoticeType()
 
         btnAddImageNotice.setOnClickListener {
             Dexter.withActivity(this)
@@ -76,9 +77,14 @@ class AddNoticeActivity : AppCompatActivity() {
                                 .toolbarArrowColor(Color.BLACK)
                                 .limit(1)
                                 .showCamera(true)
-                                .toolbarArrowColor(ContextCompat.getColor(this@AddNoticeActivity, R.color.white))
+                                .toolbarArrowColor(
+                                    ContextCompat.getColor(
+                                        this@AddNoticeActivity,
+                                        R.color.white
+                                    )
+                                )
                                 .start(REQUEST_GALLERY_IMAGE)
-                        }else
+                        } else
                             D.showToastLong(this@AddNoticeActivity, "Plz Grant the permissions")
                     }
 
@@ -100,6 +106,36 @@ class AddNoticeActivity : AppCompatActivity() {
         btnSubmit.setOnClickListener {
             save()
         }
+    }
+
+    private fun setNoticeType() {
+
+        val types = arrayListOf("Home", "Student")
+
+        val adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item, types
+        )
+        spinNoticeType.adapter = adapter
+
+        spinNoticeType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                noticeType = position
+
+                if (position == 1) setUserTypes()
+
+            }
+        }
+
     }
 
     private fun setDate() {
@@ -131,7 +167,7 @@ class AddNoticeActivity : AppCompatActivity() {
 
 
         noticeText = evNotice.text.toString()
-        val notice = Notice(image?.path ?: "", typeId, noticeText, noticeDate)
+        val notice = Notice(image?.path ?: "", userTypeId, noticeText, noticeDate, noticeType)
 
         image?.let {
             copyFileToDestination()
@@ -146,9 +182,11 @@ class AddNoticeActivity : AppCompatActivity() {
     }
 
     private fun setUserTypes() {
+        spinUserType.visibility = View.VISIBLE
+
         db.userTypeDao().all().observe(this, Observer { types ->
             types as ArrayList<UserType>
-            types.add(0, UserType( getString(R.string.select_type)))
+            types.add(0, UserType(getString(R.string.select_type)))
 
             if (types.size > 1) {
                 val adapter = ArrayAdapter(
@@ -168,7 +206,7 @@ class AddNoticeActivity : AppCompatActivity() {
                         position: Int,
                         id: Long
                     ) {
-                        typeId = types[position].id
+                        userTypeId = types[position].id
                     }
                 }
             } else spinUserType.visibility = View.GONE

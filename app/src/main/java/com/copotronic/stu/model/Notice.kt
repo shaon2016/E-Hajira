@@ -15,6 +15,8 @@ data class Notice(
     var noticeText: String = "",
     @ColumnInfo(name = "notice_date")
     var noticeDate: String = "",
+    @ColumnInfo(name = "notice_type")
+    var noticeType : Int = 0, // 0 = user type, 1 = Student Type
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0
     ) : Serializable
