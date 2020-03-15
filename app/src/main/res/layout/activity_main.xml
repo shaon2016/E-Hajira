@@ -42,25 +42,26 @@
             </LinearLayout>
 
 
-            <ImageView
-                android:layout_marginTop="16dp"
-                android:background="@color/white"
-                android:id="@+id/ivMujib"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_gravity="center_horizontal"
-                android:padding="16dp"
-                android:src="@drawable/mujib_borso" />
+<!--            <ImageView-->
+<!--                android:layout_marginTop="16dp"-->
+<!--                android:background="@color/white"-->
+<!--                android:id="@+id/ivMujib"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="300dp"-->
+<!--                android:layout_gravity="center_horizontal"-->
+<!--                android:padding="16dp"-->
+<!--                android:src="@drawable/mujib_borso" />-->
 
-            <TextView
-                android:id="@+id/tvMujibCountDownTime"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="16dp"
-                android:textSize="32sp" />
+<!--            <TextView-->
+<!--                android:id="@+id/tvMujibCountDownTime"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:gravity="center"-->
+<!--                android:padding="16dp"-->
+<!--                android:textSize="32sp" />-->
 
             <ImageView
+                android:visibility="gone"
                 android:id="@+id/ivNotice"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"

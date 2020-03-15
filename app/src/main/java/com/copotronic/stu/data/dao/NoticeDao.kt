@@ -12,8 +12,11 @@ interface NoticeDao {
     @Query("select * from notice where notice_date = :date and user_type_id = 0")
     fun noticeByDate(date: String): Notice
 
-    @Query("select * from notice where user_type_id = :typeId")
-    fun noticeByUserTypeId(typeId: Int): Notice
+    @Query("select * from notice where user_type_id = :typeId and notice_date = :date")
+    fun noticeByUserTypeId(typeId: Int, date: String): Notice
+
+    @Query("select * from notice where notice_type = :typeId and notice_date = :date")
+    fun noticeByNoticeTypeId(typeId: Int, date: String): Notice
 
 
     @Query("select * from notice")

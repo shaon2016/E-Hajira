@@ -14,6 +14,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_student_details.*
+import java.util.*
 
 class UserDetailsActivity : AppCompatActivity() {
     private var user: User? = null
@@ -81,7 +82,8 @@ class UserDetailsActivity : AppCompatActivity() {
     @SuppressLint("CheckResult")
     private fun setNotice() {
         Observable.fromCallable {
-            db.noticeDao().noticeByUserTypeId(user!!.userTypeId)
+                val todayDate = U.reformatDate(Calendar.getInstance().time, "yyyy-MM-dd")
+                db.noticeDao().noticeByUserTypeId(user!!.userTypeId, todayDate)
         }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ notice ->

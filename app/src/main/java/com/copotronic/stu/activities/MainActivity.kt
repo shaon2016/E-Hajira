@@ -93,24 +93,25 @@ class MainActivity : AppCompatActivity(), MFS100Event {
      * */
     @SuppressLint("CheckResult")
     private fun setNotice() {
-        showCountDownMujibBorso()
+        //showCountDownMujibBorso()
 
         Observable.fromCallable {
-           // val todayDate = U.reformatDate(Calendar.getInstance().time, "yyyy-MM-dd")
-            // home type id = 1
-            db.noticeDao().noticeByUserTypeId(1)
-        }.subscribeOn(Schedulers.io())
+                val todayDate = U.reformatDate(Calendar.getInstance().time, "yyyy-MM-dd")
+                // home notice type id = 0
+                db.noticeDao().noticeByNoticeTypeId(0, todayDate)
+            }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ notice ->
                 if (notice != null) {
                     tvNotice.text = notice.noticeText
                     if (notice.imageFilePath.isNotEmpty())
                         Observable.fromCallable {
-                            val myBitmap = BitmapFactory.decodeFile(notice.imageFilePath)
-                            myBitmap
-                        }.subscribeOn(Schedulers.computation())
+                                val myBitmap = BitmapFactory.decodeFile(notice.imageFilePath)
+                                myBitmap
+                            }.subscribeOn(Schedulers.computation())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({ myBitmap ->
+                                ivNotice.visibility = View.VISIBLE
                                 ivNotice.setImageBitmap(myBitmap)
                             }, {
                                 tvNotice.text = ""
@@ -130,29 +131,29 @@ class MainActivity : AppCompatActivity(), MFS100Event {
             }, {})
     }
 
-    private fun showCountDownMujibBorso() {
-        val futureMinDate = U.parseDateSimple("2020-03-17")
-        tvMujibCountDownTime.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.green))
+    /* private fun showCountDownMujibBorso() {
+         val futureMinDate = U.parseDateSimple("2020-03-17")
+         tvMujibCountDownTime.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.green))
 
-        // Here futureMinDate.time Returns the number of milliseconds since January 1, 1970, 00:00:00 GM
-        // So we need to subtract the millis from current millis to get actual millis
-        object : CountDownTimer(futureMinDate.time - System.currentTimeMillis(), 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                val sec = (millisUntilFinished / 1000) % 60
-                val min = (millisUntilFinished / (1000 * 60)) % 60
-                val hr = (millisUntilFinished / (1000 * 60 * 60)) % 24
-                val day = ((millisUntilFinished / (1000 * 60 * 60)) / 24).toInt()
-                val formattedTimeStr = if (day > 1) "$day Days $hr : $min : $sec"
-                else "$day day $hr : $min : $sec"
-                tvMujibCountDownTime.text = formattedTimeStr
-            }
+         // Here futureMinDate.time Returns the number of milliseconds since January 1, 1970, 00:00:00 GM
+         // So we need to subtract the millis from current millis to get actual millis
+         object : CountDownTimer(futureMinDate.time - System.currentTimeMillis(), 1000) {
+             override fun onTick(millisUntilFinished: Long) {
+                 val sec = (millisUntilFinished / 1000) % 60
+                 val min = (millisUntilFinished / (1000 * 60)) % 60
+                 val hr = (millisUntilFinished / (1000 * 60 * 60)) % 24
+                 val day = ((millisUntilFinished / (1000 * 60 * 60)) / 24).toInt()
+                 val formattedTimeStr = if (day > 1) "$day Days $hr : $min : $sec"
+                 else "$day day $hr : $min : $sec"
+                 tvMujibCountDownTime.text = formattedTimeStr
+             }
 
-            override fun onFinish() {
-                tvMujibCountDownTime.text = "Done!"
-                tvMujibCountDownTime.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.red_soothing))
-            }
-        }.start()
-    }
+             override fun onFinish() {
+                 tvMujibCountDownTime.text = "Done!"
+                 tvMujibCountDownTime.setTextColor(ContextCompat.getColor(this@MainActivity, R.color.red_soothing))
+             }
+         }.start()
+     }*/
 
     private fun handleBtn() {
         ivFingerOn.setOnClickListener {
@@ -437,10 +438,11 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         showLonOnLogcat(log)
     }
 
+    val SETTINGS_RESULT = 2054
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_settings -> {
-                startActivity(Intent(this, SettingActivity::class.java))
+                startActivityForResult(Intent(this, SettingActivity::class.java), SETTINGS_RESULT)
                 return true
             }
         }
@@ -451,6 +453,14 @@ class MainActivity : AppCompatActivity(), MFS100Event {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return true
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            SETTINGS_RESULT -> setNotice()
+
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
 }
