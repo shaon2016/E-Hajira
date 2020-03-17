@@ -6,10 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".activities.notice.ListOfNoticeActivity">
 
+    <EditText
+        android:hint="Search"
+        android:padding="16dp"
+        android:id="@+id/evNoticeSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_marginTop="8dp"
         android:id="@+id/rvNotices"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_below="@id/evNoticeSearch" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatAddNotice"

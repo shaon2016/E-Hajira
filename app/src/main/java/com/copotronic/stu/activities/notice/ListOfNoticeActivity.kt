@@ -3,6 +3,8 @@ package com.copotronic.stu.activities.notice
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.copotronic.stu.R
@@ -22,12 +24,32 @@ class ListOfNoticeActivity : AppCompatActivity() {
 
 
         rvNotices.layoutManager = LinearLayoutManager(this)
+
+        val adapter = NoticeListRvAdapter(this, ArrayList())
+        rvNotices.adapter = adapter
+
         dao?.all()?.observe(this, Observer {
-            rvNotices.adapter = NoticeListRvAdapter(this, it as ArrayList<Notice>)
+            adapter.addUniquely(it as java.util.ArrayList<Notice>)
         })
 
         floatAddNotice.setOnClickListener {
             startActivity(Intent(this, AddNoticeActivity::class.java))
         }
+
+        evNoticeSearch.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+                s.let {
+                    adapter.filter.filter(s)
+                }
+            }
+        })
     }
 }
