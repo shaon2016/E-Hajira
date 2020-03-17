@@ -113,11 +113,15 @@ class InstituteSettingActivity : AppCompatActivity() {
         btnAddShift.setOnClickListener {
             addShift()
         }
+        btnAddLineDesc.setOnClickListener {
+            addLineDescription()
+        }
 
         btnDone.setOnClickListener {
             saveInstituteValue()
         }
     }
+
 
     private fun saveInstituteValue() {
         val insId = evInstituteId.text.toString()
@@ -201,6 +205,25 @@ class InstituteSettingActivity : AppCompatActivity() {
                     Thread {
                         val des = Designation(0, desStr)
                         db.designationDao().insert(des)
+                    }.start()
+                }
+            }
+            positiveButton {
+                dismiss()
+            }
+        }
+    }
+
+
+    private fun addLineDescription() {
+        MaterialDialog(this).show {
+            message(null, "Add a new Line Description")
+            input(hint = "Line Description") { dialog, charSequence ->
+                val lineDescStr = charSequence.toString()
+                if (lineDescStr.isNotEmpty()) {
+                    Thread {
+                        val lineDesc = LineDescription(0, lineDescStr)
+                        db.lineDescriptionDao().insert(lineDesc)
                     }.start()
                 }
             }

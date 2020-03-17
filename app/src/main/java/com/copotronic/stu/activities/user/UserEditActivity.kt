@@ -104,7 +104,7 @@ class UserEditActivity : AppCompatActivity(), MFS100Event {
         setUserValueInEV()
         setUserImage()
 
-
+        setLineDescription()
         setDesignation()
         setDepts()
         setSection()
@@ -178,7 +178,6 @@ class UserEditActivity : AppCompatActivity(), MFS100Event {
         evName.setText(user.name)
         evMobile.setText(user.mobile)
         evPin.setText(user.pinNo)
-        evLineDescription.setText(user.lineDescription)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -222,8 +221,8 @@ class UserEditActivity : AppCompatActivity(), MFS100Event {
         Observable.fromCallable {
             val user = User(
                 user.id, user.userId, user.name, user.mobile, user.userTypeId, user.designationId,
-                user.departmentId, user.sectionId, user.shiftId, user.pinNo,
-                user.imagePath, user.lineDescription, user.leftFingerDataBase64,
+                user.departmentId, user.sectionId, user.shiftId, user.lineDescriptionId, user.pinNo,
+                user.imagePath,  user.leftFingerDataBase64,
                 user.rightFingerDataBase64,
                 user.leftFingerISOTemplateDataBase64, user.rightFingerISOTemplateDataBase64,
                 user.leftFingerISOTemplateDataByteArray, user.rightFingerISOTemplateDataByteArray
@@ -245,7 +244,6 @@ class UserEditActivity : AppCompatActivity(), MFS100Event {
         user.userId = evUserId.text.toString()
         user.mobile = evMobile.text.toString()
         user.pinNo = evPin.text.toString()
-        user.lineDescription = evLineDescription.text.toString()
 
 
         if (user.pinNo.isNullOrEmpty()) {
@@ -254,10 +252,6 @@ class UserEditActivity : AppCompatActivity(), MFS100Event {
         }
         if (user.userId.isNullOrEmpty()) {
             D.showToastShort(this, "Insert user id")
-            return
-        }
-        if (user.lineDescription.isNullOrEmpty()) {
-            D.showToastShort(this, "Insert user line description")
             return
         }
         if (user.name.isNullOrEmpty()) {
@@ -294,12 +288,9 @@ class UserEditActivity : AppCompatActivity(), MFS100Event {
                 destination
             }.subscribeOn(Schedulers.io())
                 .subscribe({ destinationFile ->
-                    Log.d("DATATAG", "Called 1")
 
                     U.deleteAFile(user.imagePath)
-                    Log.d("DATATAG", "Called 2")
                     user.imagePath = destinationFile.absolutePath
-                    Log.d("DATATAG", user.imagePath)
                     startUpdating()
                 }, { it.printStackTrace() })
         } else startUpdating()
@@ -344,6 +335,44 @@ class UserEditActivity : AppCompatActivity(), MFS100Event {
                         }
                     }
             } else spinUserDesignation.visibility = View.GONE
+        })
+    }
+    private fun setLineDescription() {
+        db.lineDescriptionDao().all().observe(this, Observer { desc ->
+            desc as ArrayList<LineDescription>
+            desc.add(0, LineDescription(0, getString(R.string.select_line_description)))
+
+            if (desc.size > 1) {
+                val adapter = ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item, desc
+                )
+                spinLineDescription.adapter = adapter
+
+                (desc.indices).forEach { i ->
+                    val d = desc[i]
+
+                    if (d.id == user.designationId) {
+                        spinUserDesignation.setSelection(i)
+                    }
+                }
+
+                spinLineDescription.onItemSelectedListener =
+                    object : AdapterView.OnItemSelectedListener {
+                        override fun onNothingSelected(parent: AdapterView<*>?) {
+
+                        }
+
+                        override fun onItemSelected(
+                            parent: AdapterView<*>?,
+                            view: View?,
+                            position: Int,
+                            id: Long
+                        ) {
+                            user.lineDescriptionId = desc[position].id
+                        }
+                    }
+            } else spinLineDescription.visibility = View.GONE
         })
     }
 

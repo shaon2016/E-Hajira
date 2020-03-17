@@ -110,7 +110,7 @@ class AddNoticeActivity : AppCompatActivity() {
 
     private fun setNoticeType() {
 
-        val types = arrayListOf("Home", "Student")
+        val types = arrayListOf("Home", "Other")
 
         val adapter = ArrayAdapter(
             this,

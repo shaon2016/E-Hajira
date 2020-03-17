@@ -8,6 +8,7 @@ data class Designation( @PrimaryKey(autoGenerate = true)
                         val id: Int,
                         var name: String) {
 
+
     override fun toString(): String {
         return name
     }

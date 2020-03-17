@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".activities.notice.NoticeEditActivity"></activity>
-        <activity android:name=".activities.ListOfNoticeActivity" />
+        <activity android:name=".activities.notice.ListOfNoticeActivity" />
         <activity android:name=".activities.user.UserEditActivity" />
         <activity
             android:name=".activities.notice.AddNoticeActivity"
@@ -24,7 +24,7 @@
             android:name=".activities.user.UsersActivity"
             android:exported="true" />
         <activity
-            android:name=".activities.AddUserActivity"
+            android:name=".activities.user.AddUserActivity"
             android:exported="true" />
         <activity
             android:name=".activities.InstituteSettingActivity"

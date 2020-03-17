@@ -92,6 +92,35 @@
 
 
             </com.google.android.flexbox.FlexboxLayout>
+<Button
+                android:id="@+id/btnAddLineDesc"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Add Line Description" />
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/fblLineDesc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:flexDirection="column">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="I am a student"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LOL"
+                    android:textSize="24sp" />
+
+
+            </com.google.android.flexbox.FlexboxLayout>
 
             <Button
                 android:id="@+id/btnAddDesignation"
@@ -117,7 +146,6 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:text="Assistant Teacher"
                     android:textSize="24sp" />
 
@@ -147,7 +175,6 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:text="Physics"
                     android:textSize="24sp" />
 
@@ -177,7 +204,6 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:text="2B"
                     android:textSize="24sp" />
 
@@ -207,7 +233,6 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:text="Night"
                     android:textSize="24sp" />
 

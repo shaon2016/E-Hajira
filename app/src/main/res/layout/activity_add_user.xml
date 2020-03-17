@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".activities.AddUserActivity">
+    tools:context=".activities.user.AddUserActivity">
 
     <include layout="@layout/toolbar" />
 
@@ -78,16 +78,21 @@
                 android:hint="@string/pin_no"
                 android:padding="16dp" />
 
-            <EditText
-                android:id="@+id/evLineDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="@string/line_description"
-                android:padding="16dp" />
+<!--            <EditText-->
+<!--                android:id="@+id/evLineDescription"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="16dp"-->
+<!--                android:hint="@string/line_description"-->
+<!--                android:padding="16dp" />-->
 
             <Spinner
                 android:id="@+id/spinUserType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp" />
+            <Spinner
+                android:id="@+id/spinLineDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp" />

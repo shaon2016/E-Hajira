@@ -24,12 +24,13 @@ data class User(
     var sectionId: Int = 0,
     @ColumnInfo(name = "user_shift_id")
     var shiftId: Int = 0,
+    @ColumnInfo(name = "line_desc_id")
+    var lineDescriptionId: Int = 0,
+
     @ColumnInfo(name = "user_pin")
     var pinNo : String = "",
     @ColumnInfo(name = "image_path")
     var imagePath : String = "",
-    @ColumnInfo(name = "line_description")
-    var lineDescription : String = "",
     @ColumnInfo(name = "left_finger_base64")
     var leftFingerDataBase64 : String = "",
     @ColumnInfo(name = "right_finger_base64")
@@ -42,4 +43,6 @@ data class User(
     var leftFingerISOTemplateDataByteArray : ByteArray = byteArrayOf(),
     @ColumnInfo(name = "right_finger_iso_template_byte_array", typeAffinity = ColumnInfo.BLOB)
     var rightFingerISOTemplateDataByteArray : ByteArray = byteArrayOf()
+
+
 ) : Serializable
