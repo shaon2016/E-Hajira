@@ -16,6 +16,8 @@ import com.copotronic.stu.activities.notice.NoticeEditActivity
 import com.copotronic.stu.data.AppDb
 import com.copotronic.stu.model.Notice
 import io.reactivex.Observable
+import io.reactivex.Observer
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 class NoticeListRvAdapter(val context: Context, val notices: ArrayList<Notice>) :
@@ -48,6 +50,7 @@ class NoticeListRvAdapter(val context: Context, val notices: ArrayList<Notice>) 
     private inner class MyNoticeVH(v: View) : RecyclerView.ViewHolder(v) {
         private val tvNotice = v.findViewById<TextView>(R.id.tvNotice)
         private val tvDate = v.findViewById<TextView>(R.id.tvDate)
+        private val tvUserType = v.findViewById<TextView>(R.id.tvUserType)
         private val tvNoticeType = v.findViewById<TextView>(R.id.tvNoticeType)
         private val btnDelete = v.findViewById<Button>(R.id.btnDelete)
         private val btnEdit = v.findViewById<Button>(R.id.btnEdit)
@@ -70,10 +73,27 @@ class NoticeListRvAdapter(val context: Context, val notices: ArrayList<Notice>) 
                 })
             }
 
-            tvNoticeType.text = when (notice.noticeType) {
+            tvNoticeType.text = "Notice Type: ${when (notice.noticeType) {
                 0 -> "Home"
                 1 -> "Other"
                 else -> ""
+            }}"
+
+            when (notice.noticeType) {
+                0 -> tvUserType.visibility = View.GONE
+                1 -> {
+                    Observable.fromCallable {
+                            AppDb.getInstance(context)?.userTypeDao()?.utById(notice.userTypeId)
+                        }.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe {
+                            it?.let {
+                                tvUserType.visibility = View.VISIBLE
+                                tvUserType.text = "User Type: ${it.name}"
+                            }
+                        }
+                }
+
             }
         }
 

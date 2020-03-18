@@ -32,6 +32,8 @@ class InstituteSettingActivity : AppCompatActivity() {
     private fun initView() {
         handleBtn()
 
+
+        setLineDescription()
         setDesignation()
         setDept()
         setSection()
@@ -39,6 +41,17 @@ class InstituteSettingActivity : AppCompatActivity() {
         setShift()
     }
 
+    private fun setLineDescription() {
+        db.lineDescriptionDao().all().observe(this, Observer { desgs ->
+            fblLineDesc.removeAllViews()
+            desgs.forEach { desg ->
+                val tv = TextView(this)
+                tv.text = desg.name
+                tv.textSize = 16f
+                fblLineDesc.addView(tv)
+            }
+        })
+    }
     private fun setDesignation() {
         db.designationDao().all().observe(this, Observer { desgs ->
             fblDesignation.removeAllViews()

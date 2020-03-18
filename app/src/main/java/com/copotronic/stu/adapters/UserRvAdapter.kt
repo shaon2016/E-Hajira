@@ -45,6 +45,7 @@ class UserRvAdapter(
     }
 
     private inner class MyUserVH(val v: View) : RecyclerView.ViewHolder(v) {
+        private val tvUserType = v.findViewById<TextView>(R.id.tvUserType)
         private val tvUserId = v.findViewById<TextView>(R.id.tvUserId)
         private val tvName = v.findViewById<TextView>(R.id.tvName)
         private val btnDelete = v.findViewById<Button>(R.id.btnDelete)
@@ -67,8 +68,6 @@ class UserRvAdapter(
 //                ivUser.setImageBitmap(leftFingerBitmap)
 
                 Observable.fromCallable {
-                    Log.d("DATATAG", u.imagePath)
-
                     val myBitmap = BitmapFactory.decodeFile(u.imagePath)
                     myBitmap
                 }.observeOn(Schedulers.computation())
@@ -96,6 +95,18 @@ class UserRvAdapter(
                 intent.putExtra("user", u)
                 context.startActivity(intent)
             }
+
+
+            Observable.fromCallable {
+                    AppDb.getInstance(context)?.userTypeDao()?.utById(u.userTypeId)
+                }.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    it?.let {
+                        tvUserType.visibility = View.VISIBLE
+                        tvUserType.text = "User Type: ${it.name}"
+                    }
+                }
         }
 
     }
