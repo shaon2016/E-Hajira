@@ -3,10 +3,13 @@ package com.copotronic.stu.activities
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.SystemClock
+import android.provider.Settings
 import android.util.Base64
 import android.util.Log
 import android.view.Menu
@@ -53,9 +56,12 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // **********
+        requestPermission()
+        //&&&&&&&&&&&&&&&
+
         setSupportActionBar(toolbar)
         supportActionBar?.title = ""
-
 
         db = AppDb.getInstance(this)!!
 
@@ -68,6 +74,20 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         setDateTime()
 
         handleGifImages()
+    }
+
+    private fun requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + this.packageName)
+                )
+                startActivityForResult(intent, 232)
+            } else {
+                //Permission Granted-System will work
+            }
+        }
     }
 
     private fun handleGifImages() {
@@ -96,19 +116,19 @@ class MainActivity : AppCompatActivity(), MFS100Event {
         //showCountDownMujibBorso()
 
         Observable.fromCallable {
-                val todayDate = U.reformatDate(Calendar.getInstance().time, "yyyy-MM-dd")
-                // home notice type id = 0
-                db.noticeDao().noticeByNoticeTypeId(0, todayDate)
-            }.subscribeOn(Schedulers.io())
+            val todayDate = U.reformatDate(Calendar.getInstance().time, "yyyy-MM-dd")
+            // home notice type id = 0
+            db.noticeDao().noticeByNoticeTypeId(0, todayDate)
+        }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ notice ->
                 if (notice != null) {
                     tvNotice.text = notice.noticeText
                     if (notice.imageFilePath.isNotEmpty())
                         Observable.fromCallable {
-                                val myBitmap = BitmapFactory.decodeFile(notice.imageFilePath)
-                                myBitmap
-                            }.subscribeOn(Schedulers.computation())
+                            val myBitmap = BitmapFactory.decodeFile(notice.imageFilePath)
+                            myBitmap
+                        }.subscribeOn(Schedulers.computation())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({ myBitmap ->
                                 ivNotice.visibility = View.VISIBLE
